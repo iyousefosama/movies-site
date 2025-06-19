@@ -48,7 +48,7 @@ async function HomePageContent() {
         genres={movieGenres}
         currentPage={1}
         totalPages={popularMoviesData.total_pages}
-        basePath="/popular/movie"
+        basePath="/popular/movie/"
       />
 
       <PopularGrid 
@@ -58,7 +58,7 @@ async function HomePageContent() {
         genres={tvGenres}
         currentPage={1}
         totalPages={popularTVData.total_pages}
-        basePath="/popular/tv"
+        basePath="/popular/tv/"
       />
     </div>
   );

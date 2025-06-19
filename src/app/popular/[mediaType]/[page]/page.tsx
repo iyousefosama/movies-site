@@ -53,7 +53,7 @@ async function PopularPageContent({ params }: PopularPageProps) {
       genres={genres}
       currentPage={page}
       totalPages={popularData.total_pages}
-      basePath={`/popular/${mediaType}`}
+      basePath={`/popular/${mediaType}/`}
     />
   );
 }

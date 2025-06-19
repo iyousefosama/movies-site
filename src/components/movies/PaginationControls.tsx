@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 interface PaginationControlsProps {
   currentPage: number;
   totalPages: number;
-  basePath: string;
+  basePath: string; // For path-based: e.g., "/popular/movie/", for query-based: e.g., "/search?query=batman&page="
 }
 
 export function PaginationControls({ currentPage, totalPages, basePath }: PaginationControlsProps) {
@@ -26,10 +26,12 @@ export function PaginationControls({ currentPage, totalPages, basePath }: Pagina
     pageNumbers.push(i);
   }
 
+  const createPageLink = (page: number) => `${basePath}${page}`;
+
   return (
     <div className="flex justify-center items-center space-x-2 mt-8">
       <Button asChild variant="outline" size="icon" disabled={currentPage <= 1}>
-        <Link href={`${basePath}/${currentPage - 1}`} aria-label="Previous page">
+        <Link href={createPageLink(currentPage - 1)} aria-label="Previous page">
           <ChevronLeft className="h-5 w-5" />
         </Link>
       </Button>
@@ -37,7 +39,7 @@ export function PaginationControls({ currentPage, totalPages, basePath }: Pagina
       {startPage > 1 && (
         <>
           <Button asChild variant="outline" size="sm">
-            <Link href={`${basePath}/1`}>1</Link>
+            <Link href={createPageLink(1)}>1</Link>
           </Button>
           {startPage > 2 && <span className="text-muted-foreground">...</span>}
         </>
@@ -51,7 +53,7 @@ export function PaginationControls({ currentPage, totalPages, basePath }: Pagina
           size="sm"
           className={cn(currentPage === page && "bg-primary text-primary-foreground hover:bg-primary/90")}
         >
-          <Link href={`${basePath}/${page}`}>{page}</Link>
+          <Link href={createPageLink(page)}>{page}</Link>
         </Button>
       ))}
 
@@ -59,13 +61,13 @@ export function PaginationControls({ currentPage, totalPages, basePath }: Pagina
         <>
           {endPage < totalPages - 1 && <span className="text-muted-foreground">...</span>}
           <Button asChild variant="outline" size="sm">
-            <Link href={`${basePath}/${totalPages}`}>{totalPages}</Link>
+            <Link href={createPageLink(totalPages)}>{totalPages}</Link>
           </Button>
         </>
       )}
       
       <Button asChild variant="outline" size="icon" disabled={currentPage >= totalPages}>
-        <Link href={`${basePath}/${currentPage + 1}`} aria-label="Next page">
+        <Link href={createPageLink(currentPage + 1)} aria-label="Next page">
           <ChevronRight className="h-5 w-5" />
         </Link>
       </Button>

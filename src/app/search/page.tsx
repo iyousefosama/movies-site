@@ -69,19 +69,13 @@ async function SearchResults({ query, page }: { query: string, page: number }) {
         <PaginationControls
           currentPage={searchResults.page}
           totalPages={Math.min(searchResults.total_pages, 500)} // TMDB API limit
-          basePath={`/search?query=${encodeURIComponent(query)}&page=`} // Note: this creates /search?query=X&page=/page/N, needs custom handling or router.push
+          basePath={`/search?query=${encodeURIComponent(query)}&page=`}
         />
       )}
     </div>
   );
 }
-// For PaginationControls with query params, we need a slightly different approach.
-// We'll update PaginationControls to accept full URLs or handle query params correctly.
-// For now, this will work for page number changes but won't preserve query param on its own.
-// This is a common issue with simple basePath pagination. A better way for search is to use router.push with updated query params.
-// But for this iteration, let's assume the SearchBar handles forming the correct URL.
-// To make pagination work with search query, it should be: /search?query=X&page=N
-// The PaginationControls needs to be aware of other query parameters.
+
 
 export default function SearchPage({ searchParams }: SearchPageProps) {
   const query = searchParams.query || '';
