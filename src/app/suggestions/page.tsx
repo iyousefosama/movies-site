@@ -12,23 +12,27 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { suggestMovies, MovieSuggestionsInput, MovieSuggestionsOutput } from '@/ai/flows/movie-suggestions';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Film, ThumbsUp, CheckCircle, Heart } from 'lucide-react'; // Added Heart
+import { AlertTriangle, Film, ThumbsUp, CheckCircle, Heart, Info } from 'lucide-react';
 import { getGenreMap } from '@/lib/tmdb';
 import { MultiSelect, MultiSelectOption } from '@/components/ui/multi-select';
 import { MediaMultiSelect } from '@/components/ui/media-multi-select';
-import { useFavorites } from '@/context/FavoritesContext'; // Added useFavorites
+import { useFavorites } from '@/context/FavoritesContext';
+import { Switch } from "@/components/ui/switch"; // Added Switch import
+import { Label } from "@/components/ui/label"; // Added Label import
 
 const suggestionFormSchema = z.object({
   viewingHistory: z.array(z.string().min(1, "Movie title cannot be empty."))
                    .min(1, "Please add at least one movie you've watched.")
                    .max(10, "Please add no more than 10 watched movies."),
   likedMovies: z.array(z.string().min(1, "Movie title cannot be empty."))
-                .min(1, "Please add at least one movie you liked.")
-                .max(10, "Please add no more than 10 liked movies."),
+                // .min(1, "Please add at least one movie you liked.") // Making this optional if includeFavorites is true
+                .max(10, "Please add no more than 10 liked movies.")
+                .default([]),
   genrePreferences: z.array(z.string())
                      .min(1, "Please select at least one genre.")
                      .max(10, "Please select no more than 10 genres."),
   count: z.coerce.number().min(1, "Suggest at least 1 movie.").max(10, "Cannot suggest more than 10 movies.").default(3),
+  includeFavorites: z.boolean().default(true), // Added for the switch
 });
 
 type SuggestionFormValues = z.infer<typeof suggestionFormSchema>;
@@ -38,7 +42,18 @@ export default function SuggestionsPage() {
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
   const [genreOptions, setGenreOptions] = useState<MultiSelectOption[]>([]);
   const { toast } = useToast();
-  const { favorites } = useFavorites(); // Get favorites
+  const { favorites } = useFavorites();
+
+  const form = useForm<SuggestionFormValues>({
+    resolver: zodResolver(suggestionFormSchema),
+    defaultValues: {
+      viewingHistory: [],
+      likedMovies: [],
+      genrePreferences: [],
+      count: 3,
+      includeFavorites: true, // Default to true
+    },
+  });
 
   useEffect(() => {
     async function fetchGenres() {
@@ -67,26 +82,39 @@ export default function SuggestionsPage() {
     fetchGenres();
   }, [toast]);
 
-  const form = useForm<SuggestionFormValues>({
-    resolver: zodResolver(suggestionFormSchema),
-    defaultValues: {
-      viewingHistory: [],
-      likedMovies: [],
-      genrePreferences: [],
-      count: 3,
-    },
-  });
 
   const onSubmit: SubmitHandler<SuggestionFormValues> = async (data) => {
     setIsLoading(true);
     setSuggestions(null);
+
+    if (data.likedMovies.length === 0 && !data.includeFavorites && favorites.length === 0) {
+        toast({
+            title: "Input Required",
+            description: "Please add at least one liked movie or enable 'Include Favorites' if you have favorites.",
+            variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+    }
+
+
     try {
-      const favoriteTitles = favorites.map(fav => fav.title);
-      const combinedLikedMovies = Array.from(new Set([...data.likedMovies, ...favoriteTitles]));
+      let finalLikedMovies = [...data.likedMovies];
+      if (data.includeFavorites && favorites.length > 0) {
+        const favoriteTitles = favorites.map(fav => fav.title);
+        finalLikedMovies = Array.from(new Set([...finalLikedMovies, ...favoriteTitles]));
+      }
+      
+      if (finalLikedMovies.length === 0 && data.viewingHistory.length > 0 && data.genrePreferences.length > 0) {
+         // If no liked movies are provided (either via form or favorites), but other fields are, it's still a valid scenario.
+         // However, the prompt works best with liked movies.
+         // No specific error, but AI might perform suboptimally.
+      }
+
 
       const input: MovieSuggestionsInput = {
         viewingHistory: data.viewingHistory,
-        likedMovies: combinedLikedMovies, // Use combined list
+        likedMovies: finalLikedMovies,
         genrePreferences: data.genrePreferences,
         count: data.count,
       };
@@ -109,6 +137,8 @@ export default function SuggestionsPage() {
       setIsLoading(false);
     }
   };
+  
+  const includeFavoritesValue = form.watch("includeFavorites");
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-2xl">
@@ -117,9 +147,14 @@ export default function SuggestionsPage() {
           <CardTitle className="text-3xl font-headline text-primary flex items-center">
             <ThumbsUp className="w-8 h-8 mr-3" /> AI Movie Suggestions
           </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Tell us about your taste, and our AI will suggest movies you might love! 
-            Your <Heart className="inline w-4 h-4 text-primary/80" /> favorites are automatically included.
+          <CardDescription className="text-muted-foreground flex items-start gap-2">
+            <Info className="w-5 h-5 mt-0.5 text-accent flex-shrink-0"/>
+            <span>
+              Tell us about your taste, and our AI will suggest movies you might love! 
+              {favorites.length > 0 
+                ? " You can choose to include your existing favorites below." 
+                : " Add some movies to your favorites for even better suggestions!"}
+            </span>
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -161,6 +196,34 @@ export default function SuggestionsPage() {
                   </FormItem>
                 )}
               />
+              
+              {favorites.length > 0 && (
+                <FormField
+                  control={form.control}
+                  name="includeFavorites"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-input/50">
+                      <div className="space-y-0.5">
+                        <FormLabel htmlFor="includeFavoritesSwitch" className="text-base text-foreground/90 flex items-center">
+                          <Heart className="w-5 h-5 mr-2 text-primary/80"/>
+                          Include Your Favorites?
+                        </FormLabel>
+                        <CardDescription className="text-xs">
+                          Consider your {favorites.length} favorited item(s) for these suggestions.
+                        </CardDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          id="includeFavoritesSwitch"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <FormField
                 control={form.control}
                 name="genrePreferences"

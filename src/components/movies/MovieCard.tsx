@@ -32,6 +32,12 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
   const href = `/${mediaType}/${item.id}`;
   const [isHovered, setIsHovered] = React.useState(false);
 
+  // Ensure the item passed to FavoriteButton has media_type
+  const itemForFavoriteButton: TMDBMediaItem = {
+    ...item,
+    media_type: item.media_type || mediaType,
+  };
+
   const cardVariants = {
     rest: { scale: 1, boxShadow: "0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -2px rgba(0, 0, 0, 0.05)" },
     hover: { 
@@ -107,7 +113,7 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
           </div>
         </Link>
         <div className="absolute top-1.5 right-1.5 z-20">
-          <FavoriteButton item={item} size="sm" className="bg-black/30 hover:bg-primary/50" />
+          <FavoriteButton item={itemForFavoriteButton} size="sm" className="bg-black/30 hover:bg-primary/50" />
         </div>
       </motion.div>
     );
@@ -190,8 +196,8 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
           </AnimatePresence>
         </div>
       </Link>
-      <div className="absolute top-2 right-2 z-10">
-         <FavoriteButton item={item} size="sm" className="bg-black/30 hover:bg-primary/50" />
+      <div className="absolute top-2 right-2 z-20"> {/* Increased z-index slightly just in case, though 10 was likely fine */}
+         <FavoriteButton item={itemForFavoriteButton} size="sm" className="bg-black/30 hover:bg-primary/50" />
       </div>
     </motion.div>
   );
