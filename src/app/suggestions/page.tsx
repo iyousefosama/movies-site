@@ -19,7 +19,7 @@ import { MediaMultiSelect } from '@/components/ui/media-multi-select';
 import { useFavorites } from '@/context/FavoritesContext';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { motion } from 'framer-motion'; // Added missing import
+import { motion } from 'framer-motion';
 
 const suggestionFormSchema = z.object({
   viewingHistory: z.array(z.string().min(1, "Movie title cannot be empty."))
@@ -65,8 +65,8 @@ export default function SuggestionsPage() {
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
   const [genreOptions, setGenreOptions] = useState<MultiSelectOption[]>([]);
   const { toast } = useToast();
-  const { favorites } = useFavorites(); 
-  const [includeFavoritesInAI, setIncludeFavoritesInAI] = useState(true); 
+  const { favorites } = useFavorites();
+  const [includeFavoritesInAI, setIncludeFavoritesInAI] = useState(true);
 
   useEffect(() => {
     async function fetchGenres() {
@@ -116,7 +116,7 @@ export default function SuggestionsPage() {
       // Avoid duplicates
       finalLikedMovies = [...new Set([...finalLikedMovies, ...favoriteTitles])];
     }
-    
+
     // Validation for liked movies if favorites are not included or empty
     if (finalLikedMovies.length === 0) {
         form.setError("likedMovies", {
@@ -131,7 +131,7 @@ export default function SuggestionsPage() {
     try {
       const input: MovieSuggestionsInput = {
         viewingHistory: data.viewingHistory,
-        likedMovies: finalLikedMovies, 
+        likedMovies: finalLikedMovies,
         genrePreferences: data.genrePreferences,
         count: data.count,
       }
@@ -157,7 +157,7 @@ export default function SuggestionsPage() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -169,7 +169,7 @@ export default function SuggestionsPage() {
             <ThumbsUp className="w-8 h-8 mr-3" /> AI Movie Suggestions
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Tell us about your taste, and our AI will suggest movies you might love! 
+            Tell us about your taste, and our AI will suggest movies you might love!
             You can also choose to include your favorited movies and TV shows in the suggestions.
           </CardDescription>
         </CardHeader>
@@ -342,4 +342,3 @@ export default function SuggestionsPage() {
     </motion.div>
   )
 }
-
