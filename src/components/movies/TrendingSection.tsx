@@ -19,8 +19,8 @@ export function TrendingSection({ title, items, mediaType, genres, viewAllLink }
 
   return (
     <section className="mb-12">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-3xl font-headline font-semibold text-foreground">{title}</h2> {/* Changed text color to foreground based on image */}
+      <div className="flex justify-center items-center mb-8">
+        <h2 className="text-3xl font-headline font-semibold text-foreground">{title}</h2>
         {viewAllLink && (
            <Link href={viewAllLink} className="text-accent hover:text-accent/80 transition-colors flex items-center text-sm">
             View All <ChevronRight className="w-4 h-4 ml-1" />
@@ -28,7 +28,7 @@ export function TrendingSection({ title, items, mediaType, genres, viewAllLink }
         )}
       </div>
       <ScrollArea className="w-full whitespace-nowrap rounded-md">
-        <div className="flex space-x-4 pb-4">
+        <div className="flex px-12 space-x-12 pb-4 mb-6">
           {items.map((item, index) => (
             <MovieCard 
               key={item.id} 

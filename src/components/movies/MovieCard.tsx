@@ -62,7 +62,7 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
   if (variant === 'trending') {
     return (
       <motion.div
-        className={cn("group relative rounded-lg overflow-hidden bg-card", className)}
+        className={cn("group relative rounded-lg  bg-card", className)}
         variants={trendingCardVariants}
         initial="rest"
         whileHover="hover"
@@ -75,7 +75,7 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
           <div className="relative aspect-[2/3] w-full">
             {rank && (
               <div 
-                className="absolute -left-2 -bottom-1 z-10 text-[5rem] md:text-[6rem] lg:text-[7rem] font-extrabold text-white/10 group-hover:text-primary/20 transition-colors duration-300 select-none"
+                className="absolute -left-8 -bottom-1 z-10 text-[5rem] md:text-[6rem] lg:text-[7rem] font-extrabold text-white/10 group-hover:text-primary/20 transition-colors duration-300 select-none"
                 style={{ WebkitTextStroke: `1px hsl(var(--border))`, paintOrder: 'stroke fill' }}
               >
                 {rank}

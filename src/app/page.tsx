@@ -28,34 +28,34 @@ async function HomePageContent() {
   ]);
 
   return (
-    <div className="space-y-16"> {/* Increased spacing for CTA */}
-      <HeroSection />
-      <TrendingSection 
-        title="Trending" 
-        items={trendingMoviesData.results.slice(0, 6)} 
-        mediaType="movie"
-        genres={movieGenres}
-      />
-      <PopularGrid 
-        title="Popular Movies"
-        items={popularMoviesData.results.slice(0, 8)} // 2 rows of 4
-        mediaType="movie"
-        genres={movieGenres}
-        basePath="/popular/movie/"
-        showViewAllLink={true}
-        showPagination={false} 
-      />
-      <PopularGrid 
-        title="Popular TV Shows"
-        items={popularTVData.results.slice(0, 8)} // 2 rows of 4
-        mediaType="tv"
-        genres={tvGenres}
-        basePath="/popular/tv/"
-        showViewAllLink={true}
-        showPagination={false} 
-      />
-      <SuggestionsCTA /> {/* Added new CTA section */}
-    </div>
+      <main>
+      <HeroSection/>
+          <TrendingSection
+              title="Trending"
+              items={trendingMoviesData.results.slice(0, 10)}
+              mediaType="movie"
+              genres={movieGenres}
+          />
+          <PopularGrid
+              title="Popular Movies"
+              items={popularMoviesData.results.slice(0, 8)} // 2 rows of 4
+              mediaType="movie"
+              genres={movieGenres}
+              basePath="/popular/movie/"
+              showViewAllLink={true}
+              showPagination={false}
+          />
+          <PopularGrid
+              title="Popular TV Shows"
+              items={popularTVData.results.slice(0, 8)} // 2 rows of 4
+              mediaType="tv"
+              genres={tvGenres}
+              basePath="/popular/tv/"
+              showViewAllLink={true}
+              showPagination={false}
+          />
+          <SuggestionsCTA /> {/* Added new CTA section */}
+      </main>
   );
 }
 

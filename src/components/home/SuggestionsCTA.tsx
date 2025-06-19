@@ -73,12 +73,11 @@ export function SuggestionsCTA() {
 
         <motion.div variants={itemVariants}>
           <Button 
-            asChild 
-            size="lg" 
-            className="text-lg py-7 px-10 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-lg hover:shadow-primary/40 transition-all duration-300 transform hover:scale-105"
+            asChild
+            className="text-xs text-wrap md:text-lg py-7 px-10 bg-zinc-800 text-white rounded-lg shadow-lg hover:shadow-primary transition-all duration-300 transform hover:scale-105 hover:bg-zinc-800 "
           >
             <Link href="/suggestions">
-              <Sparkles className="w-6 h-6 mr-3" />
+              <Sparkles className="w-8 h-8 mr-2 text-yellow-200" />
               Discover Your Next Favorite
             </Link>
           </Button>

@@ -1,66 +1,55 @@
-"use client";
+"use client"
 
-import { useState, useEffect, ChangeEvent } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { useState } from "react"
+import { Search } from "lucide-react"
+import { motion } from "framer-motion"
 
 interface SearchBarProps {
-  placeholder?: string;
-  className?: string;
+  placeholder?: string
 }
 
-export function SearchBar({ placeholder = "Search movies & TV shows...", className }: SearchBarProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get('query') || '');
-
-  const currentPathname = typeof window !== 'undefined' ? window.location.pathname : '';
-
-  useEffect(() => {
-    if (!currentPathname.startsWith('/search')) {
-        setQuery(searchParams.get('query') || '');
-    }
-  }, [searchParams, currentPathname]);
-  
-  const handleSearch = (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (query.trim()) {
-      router.push(`/search?query=${encodeURIComponent(query.trim())}`);
-    } else {
-      if (currentPathname.startsWith('/search')) {
-         router.push('/search'); 
-      }
-    }
-  };
+export function SearchBar({ placeholder = "Search..." }: SearchBarProps) {
+  const [isFocused, setIsFocused] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
 
   return (
-    <motion.form 
-      onSubmit={handleSearch} 
-      className={cn("relative w-full", className)}
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.2 }} // Add a slight delay if part of a larger animation sequence
-    >
-      <Input
-        type="search"
-        placeholder={placeholder}
-        value={query}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-        className="h-12 pl-12 pr-4 rounded-lg border-2 border-input bg-background focus:border-primary focus:ring-1 focus:ring-primary text-foreground placeholder:text-muted-foreground text-base shadow-md focus:shadow-primary/30 transition-all duration-300"
-        aria-label="Search"
-      />
-      <motion.button 
-        type="submit" 
-        aria-label="Submit search" 
-        className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
+      <motion.div
+          className="relative w-full"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
-        <Search className="h-5 w-5" />
-      </motion.button>
-    </motion.form>
-  );
+        <div
+            className={`relative flex items-center transition-all duration-300 ${
+                isFocused ? "ring-2 ring-blue-500/50" : ""
+            }`}
+        >
+          <div className="absolute left-4 z-10">
+            <Search
+                className={`w-5 h-5 transition-colors duration-200 ${isFocused ? "text-blue-400" : "text-slate-400"}`}
+            />
+          </div>
+
+          <input
+              type="text"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder={placeholder}
+              className="w-full pl-12 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+          />
+        </div>
+
+        {/* Search suggestions dropdown would go here */}
+        {searchValue && (
+            <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-xl p-2 z-20"
+            >
+              <div className="text-sm text-slate-300 p-2">Search suggestions would appear here...</div>
+            </motion.div>
+        )}
+      </motion.div>
+  )
 }
