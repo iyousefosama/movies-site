@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -9,6 +10,7 @@ import type { TMDBMediaItem, TMDBMovie, TMDBTVShow } from '@/types/tmdb';
 import { getImageUrl } from '@/lib/tmdb';
 import { cn } from '@/lib/utils';
 import React from 'react'; // Import React for useState
+import { FavoriteButton } from './FavoriteButton'; // Added import
 
 interface MovieCardProps {
   item: TMDBMediaItem;
@@ -21,8 +23,6 @@ interface MovieCardProps {
 
 export function MovieCard({ item, mediaType, genres, rank, className, variant = 'default' }: MovieCardProps) {
   const title = mediaType === 'movie' ? (item as TMDBMovie).title : (item as TMDBTVShow).name;
-  // const releaseDate = mediaType === 'movie' ? (item as TMDBMovie).release_date : (item as TMDBTVShow).first_air_date;
-  // const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
   
   const itemFirstGenreName = item.genre_ids && genres && item.genre_ids.length > 0 ? genres[item.genre_ids[0]] : null;
   const itemGenres = item.genre_ids && genres 
@@ -62,7 +62,7 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
   if (variant === 'trending') {
     return (
       <motion.div
-        className={cn("group relative rounded-lg  bg-card", className)}
+        className={cn("group relative rounded-lg bg-card", className)}
         variants={trendingCardVariants}
         initial="rest"
         whileHover="hover"
@@ -86,7 +86,7 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
               alt={title || 'Media Poster'}
               fill
               sizes="(max-width: 768px) 30vw, (max-width: 1200px) 20vw, 15vw"
-              className="object-cover transition-transform duration-300 group-hover:brightness-90"
+              className="object-cover transition-transform duration-300 group-hover:brightness-90 rounded-t-lg"
               data-ai-hint="movie poster trending"
             />
              <AnimatePresence>
@@ -106,6 +106,9 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
              </AnimatePresence>
           </div>
         </Link>
+        <div className="absolute top-1.5 right-1.5 z-20">
+          <FavoriteButton item={item} size="sm" className="bg-black/30 hover:bg-primary/50" />
+        </div>
       </motion.div>
     );
   }
@@ -187,6 +190,9 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
           </AnimatePresence>
         </div>
       </Link>
+      <div className="absolute top-2 right-2 z-10">
+         <FavoriteButton item={item} size="sm" className="bg-black/30 hover:bg-primary/50" />
+      </div>
     </motion.div>
   );
 }

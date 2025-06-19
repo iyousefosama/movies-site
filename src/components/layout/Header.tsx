@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { SearchBar } from '@/components/search/SearchBar';
-import { Clapperboard, Home, Wand2 } from 'lucide-react';
+import { Clapperboard, Home, Wand2, Heart } from 'lucide-react'; // Added Heart
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -14,6 +14,7 @@ export function Header() {
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/suggestions', label: 'AI Suggestions', icon: Wand2 },
+    { href: '/favorites', label: 'Favorites', icon: Heart }, // Added Favorites link
   ];
 
   return (

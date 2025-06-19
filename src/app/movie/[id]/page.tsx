@@ -1,4 +1,5 @@
 
+
 import { getDetails, getImageUrl } from '@/lib/tmdb';
 import type { TMDBMovieDetails } from '@/types/tmdb';
 import Image from 'next/image';
@@ -11,6 +12,7 @@ import { Star, CalendarDays, Globe, Languages, DollarSign, Landmark, Users, Tag 
 import { Suspense } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ClientMediaArea } from '@/components/movies/ClientMediaArea';
+import { FavoriteButton } from '@/components/movies/FavoriteButton'; // Added
 
 interface MovieDetailPageProps {
   params: { id: string };
@@ -84,7 +86,12 @@ async function MovieDetailsContent({ movieId }: { movieId: string }) {
         <CardContent className="p-0">
           <div className="p-6 md:p-8 space-y-2">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary">{movie.title}</h1>
+              <div className="flex-grow">
+                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary flex items-center gap-3">
+                  {movie.title}
+                  <FavoriteButton item={movie} size="lg" className="text-primary/70 hover:text-primary" />
+                </h1>
+              </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-lg">
                 <Star className="w-5 h-5 text-yellow-400" />
                 <span>{movie.vote_average.toFixed(1)}/10</span>

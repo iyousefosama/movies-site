@@ -12,10 +12,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { suggestMovies, MovieSuggestionsInput, MovieSuggestionsOutput } from '@/ai/flows/movie-suggestions';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Film, ThumbsUp, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Film, ThumbsUp, CheckCircle, Heart } from 'lucide-react'; // Added Heart
 import { getGenreMap } from '@/lib/tmdb';
 import { MultiSelect, MultiSelectOption } from '@/components/ui/multi-select';
-import { MediaMultiSelect } from '@/components/ui/media-multi-select'; // New import
+import { MediaMultiSelect } from '@/components/ui/media-multi-select';
+import { useFavorites } from '@/context/FavoritesContext'; // Added useFavorites
 
 const suggestionFormSchema = z.object({
   viewingHistory: z.array(z.string().min(1, "Movie title cannot be empty."))
@@ -37,6 +38,7 @@ export default function SuggestionsPage() {
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
   const [genreOptions, setGenreOptions] = useState<MultiSelectOption[]>([]);
   const { toast } = useToast();
+  const { favorites } = useFavorites(); // Get favorites
 
   useEffect(() => {
     async function fetchGenres() {
@@ -79,9 +81,12 @@ export default function SuggestionsPage() {
     setIsLoading(true);
     setSuggestions(null);
     try {
+      const favoriteTitles = favorites.map(fav => fav.title);
+      const combinedLikedMovies = Array.from(new Set([...data.likedMovies, ...favoriteTitles]));
+
       const input: MovieSuggestionsInput = {
-        viewingHistory: data.viewingHistory, // Already an array of strings
-        likedMovies: data.likedMovies, // Already an array of strings
+        viewingHistory: data.viewingHistory,
+        likedMovies: combinedLikedMovies, // Use combined list
         genrePreferences: data.genrePreferences,
         count: data.count,
       };
@@ -113,7 +118,8 @@ export default function SuggestionsPage() {
             <ThumbsUp className="w-8 h-8 mr-3" /> AI Movie Suggestions
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Tell us about your taste, and our AI will suggest movies you might love!
+            Tell us about your taste, and our AI will suggest movies you might love! 
+            Your <Heart className="inline w-4 h-4 text-primary/80" /> favorites are automatically included.
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -142,12 +148,12 @@ export default function SuggestionsPage() {
                 name="likedMovies"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor="likedMovies" className="text-lg text-foreground/90">Movies You Liked</FormLabel>
+                    <FormLabel htmlFor="likedMovies" className="text-lg text-foreground/90">Other Movies You Liked</FormLabel>
                     <FormControl>
                        <MediaMultiSelect
                         selected={field.value}
                         onChange={field.onChange}
-                        placeholder="Search and add movies you liked..."
+                        placeholder="Search and add more movies you liked..."
                         triggerClassName="bg-input border-border focus:border-primary data-[state=open]:border-primary"
                       />
                     </FormControl>

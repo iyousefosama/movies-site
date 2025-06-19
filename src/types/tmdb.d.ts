@@ -153,3 +153,16 @@ export type TMDBMediaDetails = TMDBMovieDetails | TMDBTVShowDetails;
 export interface GenreMap {
   [id: number]: string;
 }
+
+// FavoriteItem stores enough data to render a MovieCard and for AI suggestions
+export interface FavoriteItem {
+  id: number;
+  mediaType: 'movie' | 'tv';
+  title: string;
+  posterPath: string | null;
+  overview: string;
+  voteAverage: number;
+  genreIds: number[];
+  releaseDate?: string; // For movies
+  firstAirDate?: string; // For TV shows
+}

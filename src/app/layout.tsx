@@ -1,3 +1,4 @@
+
 "use client"; // Required for usePathname
 
 import type { Metadata } from 'next'; // Keep for potential future use if client component structure changes
@@ -7,6 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from './providers';
+import { FavoritesProvider } from '@/context/FavoritesContext'; // Added import
 import { usePathname } from 'next/navigation';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -39,12 +41,14 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-body antialiased flex flex-col min-h-screen bg-background text-foreground`}>
         <Providers>
-          {!isHomePage && <Header />} {/* Conditionally render Header */}
-          <main className={`flex-grow container mx-auto px-4 ${isHomePage ? 'py-0' : 'py-8'}`}>
-            {children}
-          </main>
-          <Footer />
-          <Toaster />
+          <FavoritesProvider> {/* Added FavoritesProvider */}
+            {!isHomePage && <Header />} {/* Conditionally render Header */}
+            <main className={`flex-grow container mx-auto px-4 ${isHomePage ? 'py-0' : 'py-8'}`}>
+              {children}
+            </main>
+            <Footer />
+            <Toaster />
+          </FavoritesProvider>
         </Providers>
       </body>
     </html>
