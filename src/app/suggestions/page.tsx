@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -14,14 +15,18 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Film, ThumbsUp, CheckCircle } from 'lucide-react';
 import { getGenreMap } from '@/lib/tmdb';
 import { MultiSelect, MultiSelectOption } from '@/components/ui/multi-select';
-import { MediaMultiSelect } from '@/components/ui/media-multi-select'; // New import
+import { MediaMultiSelect } from '@/components/ui/media-multi-select';
+import { useFavorites } from '@/context/FavoritesContext';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { motion } from 'framer-motion'; // Added missing import
 
 const suggestionFormSchema = z.object({
   viewingHistory: z.array(z.string().min(1, "Movie title cannot be empty."))
                    .min(1, "Please add at least one movie you've watched.")
                    .max(10, "Please add no more than 10 watched movies."),
   likedMovies: z.array(z.string().min(1, "Movie title cannot be empty."))
-                .min(1, "Please add at least one movie you liked.")
+                // .min(1, "Please add at least one movie you liked.") // Validation handled in onSubmit
                 .max(10, "Please add no more than 10 liked movies."),
   genrePreferences: z.array(z.string())
                      .min(1, "Please select at least one genre.")
@@ -60,6 +65,8 @@ export default function SuggestionsPage() {
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
   const [genreOptions, setGenreOptions] = useState<MultiSelectOption[]>([]);
   const { toast } = useToast();
+  const { favorites } = useFavorites(); 
+  const [includeFavoritesInAI, setIncludeFavoritesInAI] = useState(true); 
 
   useEffect(() => {
     async function fetchGenres() {
@@ -101,10 +108,30 @@ export default function SuggestionsPage() {
   const onSubmit: SubmitHandler<SuggestionFormValues> = async (data) => {
     setIsLoading(true);
     setSuggestions(null);
+    form.clearErrors("likedMovies"); // Clear previous manual error
+
+    let finalLikedMovies = [...data.likedMovies];
+    if (includeFavoritesInAI && favorites.length > 0) {
+      const favoriteTitles = favorites.map(fav => fav.title);
+      // Avoid duplicates
+      finalLikedMovies = [...new Set([...finalLikedMovies, ...favoriteTitles])];
+    }
+    
+    // Validation for liked movies if favorites are not included or empty
+    if (finalLikedMovies.length === 0) {
+        form.setError("likedMovies", {
+          type: "manual",
+          message: "Please add at least one liked movie or ensure 'Include Favorites' is on and you have favorites."
+        });
+        setIsLoading(false);
+        return;
+    }
+
+
     try {
       const input: MovieSuggestionsInput = {
-        viewingHistory: data.viewingHistory, // Already an array of strings
-        likedMovies: data.likedMovies, // Already an array of strings
+        viewingHistory: data.viewingHistory,
+        likedMovies: finalLikedMovies, 
         genrePreferences: data.genrePreferences,
         count: data.count,
       }
@@ -130,14 +157,20 @@ export default function SuggestionsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-2xl">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="container mx-auto py-8 px-4 max-w-2xl"
+    >
       <Card className="shadow-2xl border-primary/30 bg-card">
         <CardHeader>
           <CardTitle className="text-3xl font-headline text-primary flex items-center">
             <ThumbsUp className="w-8 h-8 mr-3" /> AI Movie Suggestions
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Tell us about your taste, and our AI will suggest movies you might love!
+            Tell us about your taste, and our AI will suggest movies you might love! 
+            You can also choose to include your favorited movies and TV shows in the suggestions.
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -166,7 +199,7 @@ export default function SuggestionsPage() {
                 name="likedMovies"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor="likedMovies" className="text-lg text-foreground/90">Movies You Liked</FormLabel>
+                    <FormLabel htmlFor="likedMovies" className="text-lg text-foreground/90">Movies You Liked (optional if using favorites)</FormLabel>
                     <FormControl>
                        <MediaMultiSelect
                         selected={field.value}
@@ -179,6 +212,20 @@ export default function SuggestionsPage() {
                   </FormItem>
                 )}
               />
+               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-input/50">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base text-foreground/90">Include Your Favorites?</FormLabel>
+                  <FormDescription className="text-xs">
+                    Allow AI to consider movies & TV shows you've favorited.
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={includeFavoritesInAI}
+                    onCheckedChange={setIncludeFavoritesInAI}
+                  />
+                </FormControl>
+              </FormItem>
               <FormField
                 control={form.control}
                 name="genrePreferences"
@@ -292,7 +339,7 @@ export default function SuggestionsPage() {
             </Card>
           </motion.div>
         )}
-      </motion.div>
-    </div>
+    </motion.div>
   )
 }
+

@@ -52,7 +52,7 @@ export function HeroSection() {
           <motion.div variants={itemVariants} className="relative mb-8 mx-auto">
             <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl h-24 md:h-28 lg:h-32 mx-auto">
               <Image
-                  src="https://placehold.co/600x150.png"
+                  src="/public/logo.png"
                   alt="Movista stylized logo or movie reel"
                   fill
                   className="object-contain"
