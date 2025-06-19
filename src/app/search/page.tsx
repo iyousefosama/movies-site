@@ -1,9 +1,9 @@
 
-"use client"; // Converted to client component for state management (sorting)
+"use client"; 
 
 import { useState, useEffect, Suspense, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { searchMedia, getGenreMap } from '@/lib/tmdb';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { searchMedia, getGenreMap, discoverMoviesByGenreName, discoverTVShowsByGenreName } from '@/lib/tmdb';
 import type { TMDBMediaItem } from '@/types/tmdb';
 import { MovieCard } from '@/components/movies/MovieCard';
 import { PaginationControls } from '@/components/movies/PaginationControls';
@@ -19,7 +19,6 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SearchX } from 'lucide-react';
 
-
 interface SearchResultsData {
   results: TMDBMediaItem[];
   totalPages: number;
@@ -32,7 +31,9 @@ type SortOrder = "asc" | "desc";
 
 function SearchResultsDisplay() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const query = searchParams.get('query') || '';
+  const genreQuery = searchParams.get('genre_query') || '';
   const page = parseInt(searchParams.get('page') || '1', 10);
 
   const [searchResults, setSearchResults] = useState<SearchResultsData | null>(null);
@@ -46,28 +47,64 @@ function SearchResultsDisplay() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!query) {
-        setSearchResults(null);
-        setIsLoading(false);
-        setError(null);
-        return;
-      }
       setIsLoading(true);
       setError(null);
       try {
-        const [resultsData, movieGenresMap, tvGenresMap] = await Promise.all([
-          searchMedia(query, page),
+        let resultsData;
+        const [movieGenresMap, tvGenresMap] = await Promise.all([
           getGenreMap('movie'),
           getGenreMap('tv')
         ]);
+        setMovieGenres(movieGenresMap);
+        setTvGenres(tvGenresMap);
+
+        if (genreQuery) {
+          // Fetch by genre
+          const [movieGenreResults, tvGenreResults] = await Promise.all([
+            discoverMoviesByGenreName(genreQuery, page),
+            discoverTVShowsByGenreName(genreQuery, page)
+          ]);
+          
+          const combinedResults = [
+            ...movieGenreResults.results.map(item => ({ ...item, media_type: 'movie' as const })),
+            ...tvGenreResults.results.map(item => ({ ...item, media_type: 'tv' as const }))
+          ];
+          
+          // Simple merge, TMDB discover is per media type so less risk of actual duplicates by ID.
+          // Sort combined results by popularity by default as discover endpoints do.
+          combinedResults.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+
+
+          // For pagination, we might need a more sophisticated way if results are very different
+          // For now, use the larger total_pages and total_results, or sum them.
+          // Let's assume for simplicity, we can take max total_pages and sum total_results
+          // This might not be perfectly accurate for combined pagination display.
+          const totalPages = Math.max(movieGenreResults.total_pages, tvGenreResults.total_pages);
+          const totalResults = movieGenreResults.total_results + tvGenreResults.total_results;
+
+          resultsData = {
+            results: combinedResults,
+            total_pages: totalPages,
+            page: page,
+            total_results: totalResults,
+          };
+
+        } else if (query) {
+          // Fetch by search query
+          resultsData = await searchMedia(query, page);
+        } else {
+          setSearchResults(null);
+          setIsLoading(false);
+          return;
+        }
+
         setSearchResults({
           results: resultsData.results,
           totalPages: resultsData.total_pages,
           currentPage: resultsData.page,
           totalResults: resultsData.total_results,
         });
-        setMovieGenres(movieGenresMap);
-        setTvGenres(tvGenresMap);
+
       } catch (err) {
         console.error("Search page error:", err);
         setError(err instanceof Error ? err.message : "Failed to fetch search results.");
@@ -77,16 +114,20 @@ function SearchResultsDisplay() {
       }
     }
     fetchData();
-  }, [query, page]);
+  }, [query, genreQuery, page]);
 
   const sortedAndFilteredResults = useMemo(() => {
     if (!searchResults?.results) return [];
 
     const filtered = searchResults.results.filter(item => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path);
 
-    if (sortBy === "relevance") { // API returns by relevance by default
+    if (sortBy === "relevance" && !genreQuery) { 
       return filtered;
     }
+    if (sortBy === "relevance" && genreQuery) { // "discover" is already sorted by popularity, treat as relevance
+        return filtered;
+    }
+
 
     return [...filtered].sort((a, b) => {
       let valA: string | number | Date = 0;
@@ -111,7 +152,7 @@ function SearchResultsDisplay() {
       if (valA > valB) return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
-  }, [searchResults, sortBy, sortOrder]);
+  }, [searchResults, sortBy, sortOrder, genreQuery]);
 
   if (isLoading) {
     return <LoadingSpinner className="h-96" />;
@@ -125,23 +166,32 @@ function SearchResultsDisplay() {
     </Alert>;
   }
   
-  if (!query) {
-    return <p className="text-center text-muted-foreground py-8">Please enter a search term to find movies or TV shows.</p>;
+  if (!query && !genreQuery) {
+    return <p className="text-center text-muted-foreground py-8">Please enter a search term or select a genre to find movies or TV shows.</p>;
   }
 
   if (!searchResults || sortedAndFilteredResults.length === 0 && searchResults.totalResults === 0) {
-    return <p className="text-center text-muted-foreground py-8">No results found for &quot;{query}&quot;.</p>;
+    return <p className="text-center text-muted-foreground py-8">No results found for &quot;{query || genreQuery}&quot;.</p>;
   }
   
   const getMediaType = (item: TMDBMediaItem): 'movie' | 'tv' => {
     return item.media_type === 'movie' || item.title ? 'movie' : 'tv';
   }
 
+  const pageTitle = genreQuery 
+    ? `Results for Genre: "${genreQuery}"` 
+    : `Search Results for "${query}"`;
+
+  const basePath = genreQuery 
+    ? `/search?genre_query=${encodeURIComponent(genreQuery)}&page=` 
+    : `/search?query=${encodeURIComponent(query)}&page=`;
+
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl md:text-3xl font-headline font-semibold text-primary">
-          Search Results for &quot;{query}&quot;
+          {pageTitle}
           {searchResults && searchResults.totalResults > 0 && (
             <span className="text-sm text-muted-foreground ml-2">({searchResults.totalResults} found)</span>
           )}
@@ -163,7 +213,7 @@ function SearchResultsDisplay() {
               </Select>
             </div>
             <div className="flex items-center gap-2">
-              <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as SortOrder)} disabled={sortBy === "relevance"}>
+              <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as SortOrder)} disabled={sortBy === "relevance" && !genreQuery}>
                 <SelectTrigger id="sort-order" className="w-[120px] h-9 text-sm">
                   <SelectValue placeholder="Order" />
                 </SelectTrigger>
@@ -183,7 +233,7 @@ function SearchResultsDisplay() {
               const mediaType = getMediaType(item);
               return (
                 <MovieCard
-                  key={`${item.id}-${item.media_type}`}
+                  key={`${item.id}-${item.media_type || mediaType}`} // Ensure unique key
                   item={item}
                   mediaType={mediaType}
                   genres={mediaType === 'movie' ? movieGenres : tvGenres}
@@ -192,23 +242,20 @@ function SearchResultsDisplay() {
           })}
         </div>
       ) : (
-         <p className="text-center text-muted-foreground py-8">No displayable results found for &quot;{query}&quot; after filtering.</p>
+         <p className="text-center text-muted-foreground py-8">No displayable results found for &quot;{query || genreQuery}&quot; after filtering.</p>
       )}
 
       {searchResults && searchResults.totalPages > 1 && (
         <PaginationControls
           currentPage={searchResults.currentPage}
-          totalPages={Math.min(searchResults.totalPages, 500)} // TMDB API limit
-          basePath={`/search?query=${encodeURIComponent(query)}&page=`}
+          totalPages={Math.min(searchResults.totalPages, 500)} 
+          basePath={basePath}
         />
       )}
     </div>
   );
 }
 
-
-// This outer component ensures that useSearchParams can be used by SearchResultsDisplay
-// And handles the Suspense boundary for client-side data fetching.
 export default function SearchPage() {
   return (
     <Suspense fallback={<LoadingSpinner className="h-96" />}>

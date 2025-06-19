@@ -7,20 +7,26 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { suggestMovies, MovieSuggestionsInput, MovieSuggestionsOutput } from '@/ai/flows/movie-suggestions';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Film, ThumbsUp, CheckCircle, ListFilter } from 'lucide-react';
+import { AlertTriangle, Film, ThumbsUp, CheckCircle } from 'lucide-react';
 import { getGenreMap } from '@/lib/tmdb';
 import { MultiSelect, MultiSelectOption } from '@/components/ui/multi-select';
+import { MediaMultiSelect } from '@/components/ui/media-multi-select'; // New import
 
 const suggestionFormSchema = z.object({
-  viewingHistory: z.string().min(1, "Please enter at least one movie you've watched.").max(500, "Viewing history is too long."),
-  likedMovies: z.string().min(1, "Please enter at least one movie you liked.").max(500, "Liked movies list is too long."),
-  genrePreferences: z.array(z.string()).min(1, "Please select at least one genre.").max(10, "Please select no more than 10 genres."),
+  viewingHistory: z.array(z.string().min(1, "Movie title cannot be empty."))
+                   .min(1, "Please add at least one movie you've watched.")
+                   .max(10, "Please add no more than 10 watched movies."),
+  likedMovies: z.array(z.string().min(1, "Movie title cannot be empty."))
+                .min(1, "Please add at least one movie you liked.")
+                .max(10, "Please add no more than 10 liked movies."),
+  genrePreferences: z.array(z.string())
+                     .min(1, "Please select at least one genre.")
+                     .max(10, "Please select no more than 10 genres."),
   count: z.coerce.number().min(1, "Suggest at least 1 movie.").max(10, "Cannot suggest more than 10 movies.").default(3),
 });
 
@@ -39,7 +45,7 @@ export default function SuggestionsPage() {
         const tvGenresMap = await getGenreMap('tv');
         
         const combinedGenres: Record<string, string> = {};
-        Object.entries(movieGenresMap).forEach(([id, name]) => combinedGenres[name] = name); // Use name as key to avoid duplicates by name
+        Object.entries(movieGenresMap).forEach(([id, name]) => combinedGenres[name] = name); 
         Object.entries(tvGenresMap).forEach(([id, name]) => combinedGenres[name] = name);
 
         const options = Object.keys(combinedGenres)
@@ -62,8 +68,8 @@ export default function SuggestionsPage() {
   const form = useForm<SuggestionFormValues>({
     resolver: zodResolver(suggestionFormSchema),
     defaultValues: {
-      viewingHistory: '',
-      likedMovies: '',
+      viewingHistory: [],
+      likedMovies: [],
       genrePreferences: [],
       count: 3,
     },
@@ -74,9 +80,9 @@ export default function SuggestionsPage() {
     setSuggestions(null);
     try {
       const input: MovieSuggestionsInput = {
-        viewingHistory: data.viewingHistory.split(',').map(s => s.trim()).filter(Boolean),
-        likedMovies: data.likedMovies.split(',').map(s => s.trim()).filter(Boolean),
-        genrePreferences: data.genrePreferences, // Already an array
+        viewingHistory: data.viewingHistory, // Already an array of strings
+        likedMovies: data.likedMovies, // Already an array of strings
+        genrePreferences: data.genrePreferences,
         count: data.count,
       };
       const result: MovieSuggestionsOutput = await suggestMovies(input);
@@ -107,7 +113,7 @@ export default function SuggestionsPage() {
             <ThumbsUp className="w-8 h-8 mr-3" /> AI Movie Suggestions
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Tell us about your taste, and our AI will suggest movies you might love! For watched/liked movies, separate multiple entries with commas.
+            Tell us about your taste, and our AI will suggest movies you might love!
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -120,11 +126,11 @@ export default function SuggestionsPage() {
                   <FormItem>
                     <FormLabel htmlFor="viewingHistory" className="text-lg text-foreground/90">Movies You&apos;ve Watched</FormLabel>
                     <FormControl>
-                      <Textarea
-                        id="viewingHistory"
-                        placeholder="e.g., Inception, The Matrix, Interstellar"
-                        className="min-h-[80px] bg-input border-border focus:border-primary"
-                        {...field}
+                      <MediaMultiSelect
+                        selected={field.value}
+                        onChange={field.onChange}
+                        placeholder="Search and add movies you've watched..."
+                        triggerClassName="bg-input border-border focus:border-primary data-[state=open]:border-primary"
                       />
                     </FormControl>
                     <FormMessage />
@@ -138,11 +144,11 @@ export default function SuggestionsPage() {
                   <FormItem>
                     <FormLabel htmlFor="likedMovies" className="text-lg text-foreground/90">Movies You Liked</FormLabel>
                     <FormControl>
-                      <Textarea
-                        id="likedMovies"
-                        placeholder="e.g., Parasite, Spirited Away"
-                        className="min-h-[80px] bg-input border-border focus:border-primary"
-                        {...field}
+                       <MediaMultiSelect
+                        selected={field.value}
+                        onChange={field.onChange}
+                        placeholder="Search and add movies you liked..."
+                        triggerClassName="bg-input border-border focus:border-primary data-[state=open]:border-primary"
                       />
                     </FormControl>
                     <FormMessage />

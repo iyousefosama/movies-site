@@ -28,7 +28,7 @@ async function fetchTMDB<T>(endpoint: string, params: Record<string, string | nu
   });
   const url = `${BASE_URL}/${endpoint}?${urlParams.toString()}`;
 
-  const response = await fetch(url, { next: { revalidate: 3600 } }); // Cache for 1 hour
+  const response = await fetch(url, { next: { revalidate: 3600 } }); 
 
   if (!response.ok) {
     const errorData: TMDBError = await response.json();
@@ -59,7 +59,7 @@ export const getDetails = async (
   mediaType: 'movie' | 'tv',
   id: string | number,
   language: string = 'en-US',
-  appendToResponse?: string // e.g., 'videos,images,credits,release_dates,content_ratings'
+  appendToResponse?: string 
 ): Promise<TMDBMovieDetails | TMDBTVShowDetails> => {
   const params: Record<string, string | number> = { language };
   if (appendToResponse) {
@@ -77,7 +77,6 @@ export const searchMedia = async (
   language: string = 'en-US',
   includeAdult: boolean = false,
 ): Promise<TMDBPaginatedResponse<TMDBMediaItem>> => {
-  // Using 'multi' search to find both movies and TV shows
   return fetchTMDB<TMDBPaginatedResponse<TMDBMediaItem>>('search/multi', { query, page, language, include_adult: includeAdult });
 };
 
@@ -85,13 +84,12 @@ export const getGenres = async (mediaType: 'movie' | 'tv', language: string = 'e
   return fetchTMDB<{ genres: TMDBGenre[] }>(`genre/${mediaType}/list`, { language });
 };
 
-// Helper to create a genre map
-let movieGenreMap: Record<number, string> | null = null;
-let tvGenreMap: Record<number, string> | null = null;
+let movieGenreMapInstance: Record<number, string> | null = null;
+let tvGenreMapInstance: Record<number, string> | null = null;
 
 export const getGenreMap = async (mediaType: 'movie' | 'tv', language: string = 'en-US'): Promise<Record<number, string>> => {
-  if (mediaType === 'movie' && movieGenreMap) return movieGenreMap;
-  if (mediaType === 'tv' && tvGenreMap) return tvGenreMap;
+  if (mediaType === 'movie' && movieGenreMapInstance) return movieGenreMapInstance;
+  if (mediaType === 'tv' && tvGenreMapInstance) return tvGenreMapInstance;
 
   try {
     const { genres } = await getGenres(mediaType, language);
@@ -100,18 +98,57 @@ export const getGenreMap = async (mediaType: 'movie' | 'tv', language: string = 
       return acc;
     }, {} as Record<number, string>);
 
-    if (mediaType === 'movie') movieGenreMap = map;
-    else tvGenreMap = map;
+    if (mediaType === 'movie') movieGenreMapInstance = map;
+    else tvGenreMapInstance = map;
     
     return map;
   } catch (error) {
     console.error(`Failed to get genre map for ${mediaType}:`, error);
-    return {}; // Return empty map on error
+    return {}; 
   }
 };
 
+export const discoverMoviesByGenreName = async (
+  genreName: string,
+  page: number = 1,
+  language: string = 'en-US'
+): Promise<TMDBPaginatedResponse<TMDBMovie>> => {
+  const genreMap = await getGenreMap('movie', language);
+  const genreId = Object.keys(genreMap).find(id => genreMap[Number(id)].toLowerCase() === genreName.toLowerCase());
+  
+  if (!genreId) {
+    // Return empty results if genre name not found, or handle error as preferred
+    return { page, results: [], total_pages: 0, total_results: 0 };
+  }
+  return fetchTMDB<TMDBPaginatedResponse<TMDBMovie>>('discover/movie', { 
+    with_genres: genreId, 
+    page, 
+    language,
+    sort_by: 'popularity.desc' 
+  });
+};
+
+export const discoverTVShowsByGenreName = async (
+  genreName: string,
+  page: number = 1,
+  language: string = 'en-US'
+): Promise<TMDBPaginatedResponse<TMDBTVShow>> => {
+  const genreMap = await getGenreMap('tv', language);
+  const genreId = Object.keys(genreMap).find(id => genreMap[Number(id)].toLowerCase() === genreName.toLowerCase());
+
+  if (!genreId) {
+    return { page, results: [], total_pages: 0, total_results: 0 };
+  }
+  return fetchTMDB<TMDBPaginatedResponse<TMDBTVShow>>('discover/tv', { 
+    with_genres: genreId, 
+    page, 
+    language,
+    sort_by: 'popularity.desc'
+  });
+};
+
 export const getImageUrl = (path: string | null, size: string = 'w500'): string => {
-  if (!path) return `https://placehold.co/500x750.png?text=No+Image`; // Placeholder for missing images
+  if (!path) return `https://placehold.co/500x750.png`; 
   return `${IMAGE_BASE_URL}${size}${path}`;
 };
 

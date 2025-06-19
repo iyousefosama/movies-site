@@ -4,7 +4,7 @@
 import Image from "next/image"
 import { SearchBar } from "@/components/search/SearchBar"
 import { motion } from "framer-motion"
-import Link from "next/link" // Import Link for genre buttons
+import Link from "next/link"
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -31,7 +31,7 @@ const itemVariants = {
 }
 
 export function HeroSection() {
-  const popularGenres = ["Action", "Comedy", "Sci-Fi", "Drama"];
+  const popularGenres = ["Action", "Comedy", "Sci-Fi", "Drama", "Horror", "Animation"]; // Added more examples
   return (
       <motion.section
           className="relative text-center py-12 md:py-16 lg:py-20 overflow-hidden min-h-[60vh] md:min-h-[50vh] flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/10"
@@ -46,7 +46,7 @@ export function HeroSection() {
           <motion.div variants={itemVariants} className="relative mb-8 mx-auto">
             <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl h-24 md:h-28 lg:h-32 mx-auto">
               <Image
-                  src="https://placehold.co/600x150.png" // Adjusted aspect ratio for a logotype
+                  src="https://placehold.co/600x150.png"
                   alt="Movista stylized logo or movie reel"
                   fill
                   className="object-contain"
@@ -73,23 +73,24 @@ export function HeroSection() {
 
           {/* Enhanced Search Section */}
           <motion.div variants={itemVariants} className="relative max-w-lg mx-auto">
-            <SearchBar placeholder="Search through 300,000+ titles..." />
+            <SearchBar placeholder="Search titles, actors, genres..." />
 
-            {/* Popular Searches */}
+            {/* Popular Genres */}
             <motion.div 
               className="mt-6 flex flex-wrap gap-2 justify-center items-center" 
               variants={itemVariants}
-              initial="hidden" // These items can also have their own stagger
+              initial="hidden" 
               animate="visible"
               transition={{ staggerChildren: 0.1, delayChildren: 0.5 }}
             >
               <span className="text-sm text-muted-foreground mr-2">Popular Genres:</span>
-              {popularGenres.map((genre, index) => (
+              {popularGenres.map((genre) => (
                   <motion.div
                     key={genre}
-                    variants={itemVariants} // Reuse itemVariants for individual genre buttons
+                    variants={itemVariants}
                   >
-                    <Link href={`/search?query=${encodeURIComponent(genre)}`} passHref>
+                    {/* Updated Link to use genre_query */}
+                    <Link href={`/search?genre_query=${encodeURIComponent(genre)}`} passHref>
                       <motion.button
                           className="px-3 py-1.5 text-xs bg-card hover:bg-accent/80 rounded-full text-foreground hover:text-accent-foreground transition-all duration-200 border border-border hover:border-accent"
                           whileHover={{ scale: 1.05, y: -2 }}
