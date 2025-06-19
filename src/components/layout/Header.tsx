@@ -1,17 +1,19 @@
+
 "use client";
 
 import Link from 'next/link';
 import { SearchBar } from '@/components/search/SearchBar';
-import { Clapperboard, Home, Lightbulb } from 'lucide-react';
+import { Clapperboard, Home, Lightbulb, Wand2 } from 'lucide-react'; // Added Wand2 for suggestions
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 export function Header() {
   const pathname = usePathname();
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/suggestions', label: 'Suggestions', icon: Lightbulb },
+    { href: '/suggestions', label: 'AI Suggestions', icon: Wand2 }, // Changed Icon and Label
   ];
 
   return (
@@ -22,20 +24,32 @@ export function Header() {
           <span className="font-headline text-2xl font-bold">Movista</span>
         </Link>
         
-        <nav className="flex items-center space-x-6 text-sm font-medium">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "transition-colors hover:text-primary/90",
-                pathname === item.href ? "text-primary font-semibold" : "text-foreground/60"
-              )}
-            >
-              <item.icon className="inline-block h-5 w-5 mr-1 mb-0.5" />
-              {item.label}
-            </Link>
-          ))}
+        <nav className="flex items-center space-x-1"> {/* Reduced space for tighter nav */}
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "relative px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ease-out hover:text-primary",
+                  isActive ? "text-primary font-semibold" : "text-foreground/70 hover:text-foreground/90"
+                )}
+              >
+                <item.icon className="inline-block h-5 w-5 mr-1.5 mb-0.5" />
+                {item.label}
+                {isActive && (
+                  <motion.div 
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                    layoutId="activeNavUnderline" // For smooth animation between active links
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="w-full max-w-xs">

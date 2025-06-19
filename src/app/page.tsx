@@ -1,9 +1,11 @@
+
 import { getTrending, getPopular, getGenreMap } from '@/lib/tmdb';
 import { TrendingSection } from '@/components/movies/TrendingSection';
 import { PopularGrid } from '@/components/movies/PopularGrid';
 import { Suspense } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { HeroSection } from '@/components/home/HeroSection';
+import { SuggestionsCTA } from '@/components/home/SuggestionsCTA'; // Added import
 
 export const revalidate = 3600; // Revalidate data every hour
 
@@ -26,7 +28,7 @@ async function HomePageContent() {
   ]);
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-16"> {/* Increased spacing for CTA */}
       <HeroSection />
       <TrendingSection 
         title="Trending" 
@@ -41,7 +43,7 @@ async function HomePageContent() {
         genres={movieGenres}
         basePath="/popular/movie/"
         showViewAllLink={true}
-        showPagination={false} // No pagination directly on homepage grid
+        showPagination={false} 
       />
       <PopularGrid 
         title="Popular TV Shows"
@@ -50,8 +52,9 @@ async function HomePageContent() {
         genres={tvGenres}
         basePath="/popular/tv/"
         showViewAllLink={true}
-        showPagination={false} // No pagination directly on homepage grid
+        showPagination={false} 
       />
+      <SuggestionsCTA /> {/* Added new CTA section */}
     </div>
   );
 }
