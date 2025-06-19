@@ -14,84 +14,95 @@ body {
 
 @layer base {
   :root {
-    --background: 222 84% 5%;           /* Slate-900 equivalent - deeper, richer dark */
-    --foreground: 215 25% 95%;          /* Slightly warm white for better readability */
+    --background: 222 84% 4%; /* Deeper dark for cinematic feel */
+    --foreground: 45 15% 92%; /* Warm white with slight golden tint */
 
-    --card: 215 28% 17%;                /* Slate-800 equivalent for cards */
-    --card-foreground: 215 25% 95%;
+    --card: 220 30% 8%; /* Darker cards with blue undertone */
+    --card-foreground: 45 15% 92%;
 
-    --popover: 215 28% 17%;             /* Match card for consistency */
-    --popover-foreground: 215 25% 95%;
+    --popover: 220 30% 8%; /* Match card for consistency */
+    --popover-foreground: 45 15% 92%;
 
-    --primary: 345 85% 60%;             /* Keep cinematic red */
-    --primary-foreground: 0 0% 100%;
+    --primary: 38 92% 50%; /* Golden amber primary */
+    --primary-foreground: 222 84% 4%;
 
-    --secondary: 215 20% 27%;           /* Slate-700 for subtle secondary elements */
-    --secondary-foreground: 215 25% 95%;
+    --secondary: 220 25% 12%; /* Darker secondary with blue undertone */
+    --secondary-foreground: 45 15% 92%;
 
-    --muted: 215 28% 17%;               /* Slate-800 for muted backgrounds */
-    --muted-foreground: 215 20% 65%;    /* Slate-400 for muted text */
+    --muted: 220 30% 8%; /* Match card background */
+    --muted-foreground: 220 15% 60%; /* Cooler muted text */
 
-    --accent: 217 91% 60%;              /* Blue accent for focus states */
-    --accent-foreground: 0 0% 100%;
+    --accent: 345 85% 58%; /* Cinematic red accent */
+    --accent-foreground: 45 15% 92%;
 
     --destructive: 0 100% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 20% 27%;              /* Slate-700 for borders */
-    --input: 215 28% 17%;               /* Slate-800 for inputs */
-    --ring: 217 91% 60%;                /* Blue for focus rings */
+    --border: 220 25% 15%; /* Subtle borders */
+    --input: 220 30% 8%; /* Match muted background */
+    --ring: 38 92% 50%; /* Golden focus rings */
 
-    --radius: 0.75rem;                  /* Slightly more rounded for modern look */
+    --radius: 0.75rem; /* Slightly more rounded for modern look */
 
-    --chart-1: 345 85% 60%;             /* Cinematic red */
-    --chart-2: 217 91% 60%;             /* Blue */
-    --chart-3: 262 83% 58%;             /* Purple */
-    --chart-4: 48 100% 67%;             /* Golden yellow */
-    --chart-5: 160 100% 40%;            /* Green */
+    --chart-1: 38 92% 50%; /* Golden amber */
+    --chart-2: 345 85% 58%; /* Cinematic red */
+    --chart-3: 262 83% 58%; /* Purple */
+    --chart-4: 217 91% 60%; /* Blue */
+    --chart-5: 160 100% 40%; /* Green */
 
-    --sidebar-background: 222 84% 5%;
-    --sidebar-foreground: 215 25% 95%;
-    --sidebar-primary: 345 85% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 91% 60%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 215 20% 27%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 222 84% 4%;
+    --sidebar-foreground: 45 15% 92%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 222 84% 4%;
+    --sidebar-accent: 345 85% 58%;
+    --sidebar-accent-foreground: 45 15% 92%;
+    --sidebar-border: 220 25% 15%;
+    --sidebar-ring: 38 92% 50%;
   }
+
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 222 84% 3%; /* Even deeper for dark mode */
+    --foreground: 45 15% 95%; /* Brighter warm white */
+
+    --card: 220 35% 6%; /* Darker cards */
+    --card-foreground: 45 15% 95%;
+
+    --popover: 220 35% 6%;
+    --popover-foreground: 45 15% 95%;
+
+    --primary: 38 92% 55%; /* Slightly brighter golden */
+    --primary-foreground: 222 84% 3%;
+
+    --secondary: 220 30% 8%;
+    --secondary-foreground: 45 15% 95%;
+
+    --muted: 220 35% 6%;
+    --muted-foreground: 220 15% 65%;
+
+    --accent: 345 85% 62%; /* Brighter red accent */
+    --accent-foreground: 45 15% 95%;
+
+    --destructive: 0 100% 55%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --border: 220 25% 12%;
+    --input: 220 35% 6%;
+    --ring: 38 92% 55%;
+
+    --chart-1: 38 92% 55%; /* Brighter golden */
+    --chart-2: 345 85% 62%; /* Brighter red */
+    --chart-3: 262 83% 62%; /* Brighter purple */
+    --chart-4: 217 91% 65%; /* Brighter blue */
+    --chart-5: 160 100% 45%; /* Brighter green */
+
+    --sidebar-background: 222 84% 3%;
+    --sidebar-foreground: 45 15% 95%;
+    --sidebar-primary: 38 92% 55%;
+    --sidebar-primary-foreground: 222 84% 3%;
+    --sidebar-accent: 345 85% 62%;
+    --sidebar-accent-foreground: 45 15% 95%;
+    --sidebar-border: 220 25% 12%;
+    --sidebar-ring: 38 92% 55%;
   }
 }
 
@@ -99,23 +110,90 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     scroll-behavior: smooth;
+    /* Add subtle texture for cinematic feel */
+    background-image: radial-gradient(circle at 1px 1px, rgba(251, 191, 36, 0.03) 1px, transparent 0);
+    background-size: 20px 20px;
   }
+
+  /* Enhanced scrollbar with cinematic colors */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
   }
+
   ::-webkit-scrollbar-track {
-    background: hsl(var(--background) / 0.5);
+    background: hsl(var(--background));
     border-radius: 10px;
+    border: 1px solid hsl(var(--border));
   }
+
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.7);
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.6), hsl(var(--accent) / 0.6));
     border-radius: 10px;
+    border: 1px solid hsl(var(--border));
   }
+
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary));
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--accent) / 0.8));
+  }
+
+  /* Add cinematic glow effects for interactive elements */
+  .btn-cinematic {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.1), inset 0 1px 0 hsl(var(--primary) / 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .btn-cinematic:hover {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.2), 0 0 60px hsl(var(--primary) / 0.1), inset 0 1px 0
+      hsl(var(--primary) / 0.3);
+  }
+
+  /* Enhance focus states with golden glow */
+  .focus-cinematic:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary) / 0.5), 0 0 20px
+      hsl(var(--primary) / 0.3);
+  }
+
+  /* Add shimmer animation for loading states */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .shimmer {
+    background: linear-gradient(110deg, hsl(var(--muted)) 8%, hsl(var(--primary) / 0.1) 18%, hsl(var(--muted)) 33%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Cinematic text gradient utilities */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-red {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-silver {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
