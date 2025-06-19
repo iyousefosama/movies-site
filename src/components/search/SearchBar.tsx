@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -16,13 +17,9 @@ export function SearchBar({ placeholder = "Search movies & TV shows...", classNa
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('query') || '');
 
-  // To handle router object, particularly on initial render or if router is not ready.
   const currentPathname = typeof window !== 'undefined' ? window.location.pathname : '';
 
-
   useEffect(() => {
-    // Update query state if URL changes (e.g. browser back/forward)
-    // and we are not on the search page itself, to avoid clearing input when navigating search pages
     if (!currentPathname.startsWith('/search')) {
         setQuery(searchParams.get('query') || '');
     }
@@ -34,28 +31,36 @@ export function SearchBar({ placeholder = "Search movies & TV shows...", classNa
       router.push(`/search?query=${encodeURIComponent(query.trim())}`);
     } else {
       if (currentPathname.startsWith('/search')) {
-         router.push('/search'); // Clear search results if on search page and query is empty
+         router.push('/search'); 
       }
     }
   };
 
   return (
-    <form onSubmit={handleSearch} className={cn("relative w-full", className)}>
+    <motion.form 
+      onSubmit={handleSearch} 
+      className={cn("relative w-full", className)}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.2 }} // Add a slight delay if part of a larger animation sequence
+    >
       <Input
         type="search"
         placeholder={placeholder}
         value={query}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-        className="h-12 pl-12 pr-4 rounded-lg border-2 border-input bg-card focus:border-primary focus:ring-primary text-card-foreground placeholder:text-muted-foreground text-base"
+        className="h-12 pl-12 pr-4 rounded-lg border-2 border-input bg-background focus:border-primary focus:ring-1 focus:ring-primary text-foreground placeholder:text-muted-foreground text-base shadow-md focus:shadow-primary/30 transition-all duration-300"
         aria-label="Search"
       />
-      <button 
+      <motion.button 
         type="submit" 
         aria-label="Submit search" 
         className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
       >
         <Search className="h-5 w-5" />
-      </button>
-    </form>
+      </motion.button>
+    </motion.form>
   );
 }
