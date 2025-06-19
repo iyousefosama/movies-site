@@ -54,7 +54,7 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
         setSuggestions(
           data.results
             .filter(item => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path) // Ensure poster_path exists
-            .slice(0, 5) // Limit to 5 suggestions
+            .slice(0, 7) // Limit to 7 suggestions to give more room for popular ones
         );
       } catch (error) {
         console.error("Failed to fetch suggestions:", error);
@@ -113,7 +113,7 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
       <motion.div
           ref={searchContainerRef}
           className={cn("relative w-full", className)}
-          whileHover={{ scale: 1.0 }} // Adjusted for less aggressive hover
+          whileHover={{ scale: 1.0 }} 
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         <form onSubmit={handleFormSubmit} className="relative">
@@ -132,7 +132,7 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
                 setIsFocused(true);
                 if (searchValue.trim().length >= 2) setShowSuggestions(true);
               }}
-              onBlur={() => setIsFocused(false)} // setShowSuggestions is handled by clickOutside
+              onBlur={() => setIsFocused(false)} 
               placeholder={placeholder}
               className="w-full pl-10 pr-10 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 text-sm"
           />
@@ -153,7 +153,7 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden max-h-96 overflow-y-auto"
+                className="absolute top-full left-0 right-0 w-full mt-2 bg-card border border-border rounded-lg shadow-xl z-[60] max-h-96 overflow-y-auto" // Increased z-index, ensured w-full
             >
               {isLoadingSuggestions && (
                 <div className="p-4 flex items-center justify-center text-muted-foreground">
@@ -169,11 +169,11 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
                     const itemTitle = item.title || item.name || 'Untitled';
                     const itemYear = item.release_date ? new Date(item.release_date).getFullYear() : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : '');
                     return (
-                      <li key={item.id}>
+                      <li key={`${item.id}-${item.media_type}`}>
                         <button
                           type="button"
-                          onMouseDown={(e) => { // Use onMouseDown to ensure click registers before blur hides suggestions
-                            e.preventDefault(); // Prevent input from losing focus immediately
+                          onMouseDown={(e) => { 
+                            e.preventDefault(); 
                             handleSuggestionClick(item);
                           }}
                           className="w-full text-left px-3 py-2.5 hover:bg-accent hover:text-accent-foreground transition-colors duration-150 flex items-center gap-3 text-sm"
