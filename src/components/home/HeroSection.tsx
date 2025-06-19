@@ -1,4 +1,6 @@
+
 "use client"
+import Image from 'next/image'; // Added this import
 import { SearchBar } from "@/components/search/SearchBar"
 import { motion } from "framer-motion"
 import Link from "next/link"
