@@ -7,10 +7,10 @@ import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Star, CalendarDays, Clock, Globe, Languages, DollarSign, Landmark, Users, Tag as TagIcon, PlayCircle, ExternalLink } from 'lucide-react';
-import { VideoPlayer } from '@/components/movies/VideoPlayer';
-import { Suspense, useState, useEffect } from 'react';
+import { Star, CalendarDays, Globe, Languages, DollarSign, Landmark, Users, Tag as TagIcon, ExternalLink } from 'lucide-react';
+import { Suspense } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { ClientMediaArea } from '@/components/movies/ClientMediaArea';
 
 interface MovieDetailPageProps {
   params: { id: string };
@@ -18,7 +18,7 @@ interface MovieDetailPageProps {
 
 export async function generateMetadata({ params }: MovieDetailPageProps) {
   try {
-    const movie = await getDetails('movie', params.id) as TMDBMovieDetails;
+    const movie = await getDetails('movie', params.id, 'en-US', 'videos,release_dates') as TMDBMovieDetails;
     return {
       title: `${movie.title} | Movista`,
       description: movie.overview,
@@ -47,7 +47,6 @@ const DetailItem = ({ label, value, icon: Icon }: { label: string; value?: strin
 async function MovieDetailsContent({ movieId }: { movieId: string }) {
   let movie: TMDBMovieDetails;
   try {
-    // Append release_dates to get certification
     movie = await getDetails('movie', movieId, 'en-US', 'videos,release_dates') as TMDBMovieDetails;
   } catch (error) {
     console.error("Failed to fetch movie details:", error);
@@ -73,23 +72,16 @@ async function MovieDetailsContent({ movieId }: { movieId: string }) {
   let certification = "N/A";
   const usRelease = movie.release_dates?.results.find(r => r.iso_3166_1 === "US");
   if (usRelease && usRelease.release_dates.length > 0) {
-    // Find a release with a certification, prefer theatrical (type 3)
     const rdWithCert = usRelease.release_dates.find(rd => rd.certification && rd.type === 3) || usRelease.release_dates.find(rd => rd.certification);
     if (rdWithCert) {
       certification = rdWithCert.certification;
     }
   }
 
-
-  // Client-side state for trailer visibility
-  // This needs to be handled in a client component. We'll wrap the media part.
-  // For now, we'll make the backdrop link to trailer if available, or display player directly if no backdrop.
-
   return (
     <div className="py-8">
       <Card className="bg-card/80 backdrop-blur-sm shadow-2xl overflow-hidden">
         <CardContent className="p-0">
-          {/* Top Header Info */}
           <div className="p-6 md:p-8 space-y-2">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary">{movie.title}</h1>
@@ -106,7 +98,6 @@ async function MovieDetailsContent({ movieId }: { movieId: string }) {
             </div>
           </div>
 
-          {/* Media Section: Poster and Backdrop/Trailer */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-8 p-4 md:p-8 pt-0">
             <div className="md:col-span-1 mb-6 md:mb-0">
               <div className="aspect-[2/3] relative rounded-lg overflow-hidden shadow-xl mx-auto md:mx-0 max-w-xs md:max-w-none">
@@ -125,7 +116,6 @@ async function MovieDetailsContent({ movieId }: { movieId: string }) {
             </div>
           </div>
           
-          {/* Details Section */}
           <div className="p-6 md:p-8 pt-0 md:pt-4">
             {movie.genres && movie.genres.length > 0 && (
               <div className="mb-6">
@@ -190,60 +180,7 @@ async function MovieDetailsContent({ movieId }: { movieId: string }) {
   );
 }
 
-// Client component to handle trailer toggle
-function ClientMediaArea({ trailerKey, backdropPath, title }: { trailerKey?: string; backdropPath: string | null; title: string }) {
-  const [showTrailer, setShowTrailer] = useState(false);
-
-  if (!trailerKey && !backdropPath) {
-    return <div className="aspect-video bg-muted rounded-lg flex items-center justify-center text-muted-foreground">No media available</div>;
-  }
-  
-  // If trailer is active, show it
-  if (showTrailer && trailerKey) {
-    return <VideoPlayer videoKey={trailerKey} title={`${title} Trailer`} />;
-  }
-
-  // Otherwise, show backdrop (if available) with a play button
-  if (backdropPath) {
-    return (
-      <div className="relative aspect-video rounded-lg overflow-hidden shadow-xl group">
-        <Image
-          src={getImageUrl(backdropPath, 'w1280')}
-          alt={`${title} backdrop`}
-          fill
-          className="object-cover"
-          data-ai-hint="movie scene"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-        {trailerKey && (
-          <Button
-            variant="ghost"
-            size="lg"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 hover:bg-primary hover:text-primary-foreground text-foreground text-lg px-6 py-3 rounded-lg backdrop-blur-sm transition-all duration-300 opacity-80 group-hover:opacity-100"
-            onClick={() => setShowTrailer(true)}
-          >
-            <PlayCircle className="w-6 h-6 mr-2" />
-            Play Trailer
-          </Button>
-        )}
-      </div>
-    );
-  }
-
-  // If no backdrop but trailer exists, show trailer directly
-  if (trailerKey) {
-     return <VideoPlayer videoKey={trailerKey} title={`${title} Trailer`} />;
-  }
-
-  return null; // Should not reach here if one of them exists
-}
-
-
 export default function MovieDetailPage({ params }: MovieDetailPageProps) {
-  // Need to wrap the content in a client component if it uses hooks like useState for trailer toggle.
-  // The main data fetching can remain server-side.
-  // For now, MovieDetailsContent is async, so cannot directly use useState.
-  // We'll pass trailerKey and backdropPath to a client component for the media area.
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><LoadingSpinner size={64} /></div>}>
       <MovieDetailsContent movieId={params.id} />
