@@ -1,37 +1,42 @@
-
 "use client"
 
-import { useState, useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { suggestMovies, MovieSuggestionsInput, MovieSuggestionsOutput } from '@/ai/flows/movie-suggestions';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Film, ThumbsUp, CheckCircle } from 'lucide-react';
-import { getGenreMap } from '@/lib/tmdb';
-import { MultiSelect, MultiSelectOption } from '@/components/ui/multi-select';
-import { MediaMultiSelect } from '@/components/ui/media-multi-select';
-import { useFavorites } from '@/context/FavoritesContext';
-import { Switch } from '@/components/ui/switch';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from "react"
+import { useForm, type SubmitHandler } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { suggestMovies, type MovieSuggestionsInput, type MovieSuggestionsOutput } from "@/ai/flows/movie-suggestions"
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
+import { useToast } from "@/hooks/use-toast"
+import { AlertTriangle, Film, ThumbsUp, CheckCircle, Sparkles, Star, Heart, Settings } from "lucide-react"
+import { getGenreMap } from "@/lib/tmdb"
+import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-select"
+import { MediaMultiSelect } from "@/components/ui/media-multi-select"
+import { useFavorites } from "@/context/FavoritesContext"
+import { Switch } from "@/components/ui/switch"
+import { motion } from "framer-motion"
 
 const suggestionFormSchema = z.object({
-  viewingHistory: z.array(z.string().min(1, "Movie title cannot be empty."))
-                   .min(1, "Please add at least one movie you've watched.")
-                   .max(10, "Please add no more than 10 watched movies."),
-  likedMovies: z.array(z.string().min(1, "Movie title cannot be empty."))
-                // .min(1, "Please add at least one movie you liked.") // Validation handled in onSubmit
-                .max(10, "Please add no more than 10 liked movies."),
-  genrePreferences: z.array(z.string())
-                     .min(1, "Please select at least one genre.")
-                     .max(10, "Please select no more than 10 genres."),
-  count: z.coerce.number().min(1, "Suggest at least 1 movie.").max(10, "Cannot suggest more than 10 movies.").default(3),
-});
+  viewingHistory: z
+    .array(z.string().min(1, "Movie title cannot be empty."))
+    .min(1, "Please add at least one movie you've watched.")
+    .max(10, "Please add no more than 10 watched movies."),
+  likedMovies: z
+    .array(z.string().min(1, "Movie title cannot be empty."))
+    .max(10, "Please add no more than 10 liked movies."),
+  genrePreferences: z
+    .array(z.string())
+    .min(1, "Please select at least one genre.")
+    .max(10, "Please select no more than 10 genres."),
+  count: z.coerce
+    .number()
+    .min(1, "Suggest at least 1 movie.")
+    .max(10, "Cannot suggest more than 10 movies.")
+    .default(3),
+})
 
 type SuggestionFormValues = z.infer<typeof suggestionFormSchema>
 
@@ -60,12 +65,12 @@ const itemVariants = {
 }
 
 export default function SuggestionsPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[] | null>(null);
-  const [genreOptions, setGenreOptions] = useState<MultiSelectOption[]>([]);
-  const { toast } = useToast();
-  const { favorites } = useFavorites();
-  const [includeFavoritesInAI, setIncludeFavoritesInAI] = useState(true);
+  const [isLoading, setIsLoading] = useState(false)
+  const [suggestions, setSuggestions] = useState<string[] | null>(null)
+  const [genreOptions, setGenreOptions] = useState<MultiSelectOption[]>([])
+  const { toast } = useToast()
+  const { favorites } = useFavorites()
+  const [includeFavoritesInAI, setIncludeFavoritesInAI] = useState(true)
 
   useEffect(() => {
     async function fetchGenres() {
@@ -102,28 +107,27 @@ export default function SuggestionsPage() {
       genrePreferences: [],
       count: 3,
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<SuggestionFormValues> = async (data) => {
-    setIsLoading(true);
-    setSuggestions(null);
-    form.clearErrors("likedMovies"); 
+    setIsLoading(true)
+    setSuggestions(null)
+    form.clearErrors("likedMovies")
 
-    let finalLikedMovies = [...data.likedMovies];
+    let finalLikedMovies = [...data.likedMovies]
     if (includeFavoritesInAI && favorites.length > 0) {
-      const favoriteTitles = favorites.map(fav => fav.title);
-      finalLikedMovies = [...new Set([...finalLikedMovies, ...favoriteTitles])];
+      const favoriteTitles = favorites.map((fav) => fav.title)
+      finalLikedMovies = [...new Set([...finalLikedMovies, ...favoriteTitles])]
     }
 
     if (finalLikedMovies.length === 0) {
-        form.setError("likedMovies", {
-          type: "manual",
-          message: "Please add at least one liked movie or ensure 'Include Favorites' is on and you have favorites."
-        });
-        setIsLoading(false);
-        return;
+      form.setError("likedMovies", {
+        type: "manual",
+        message: "Please add at least one liked movie or ensure 'Include Favorites' is on and you have favorites.",
+      })
+      setIsLoading(false)
+      return
     }
-
 
     try {
       const input: MovieSuggestionsInput = {
@@ -151,127 +155,229 @@ export default function SuggestionsPage() {
     } finally {
       setIsLoading(false)
     }
-  };
+  }
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="container mx-auto py-8 px-4 max-w-2xl"
-    >
-      <Card className="shadow-2xl border-primary/30 bg-card">
-        <CardHeader>
-          <CardTitle className="text-3xl font-headline text-primary flex items-center">
-            <ThumbsUp className="w-8 h-8 mr-3" /> AI Movie Suggestions
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Tell us about your taste, and our AI will suggest movies you might love!
-            You can also choose to include your favorited movies and TV shows in the suggestions.
-          </CardDescription>
-        </CardHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent className="space-y-6">
-              <FormField
-                control={form.control}
-                name="viewingHistory"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="viewingHistory" className="text-lg text-foreground/90">Movies You&apos;ve Watched</FormLabel>
-                    <FormControl>
-                      <MediaMultiSelect
-                        selected={field.value}
-                        onChange={field.onChange}
-                        placeholder="Search and add movies you've watched..."
-                        triggerClassName="bg-input border-border focus:border-primary data-[state=open]:border-primary"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="likedMovies"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="likedMovies" className="text-lg text-foreground/90">Movies You Liked (optional if using favorites)</FormLabel>
-                    <FormControl>
-                       <MediaMultiSelect
-                        selected={field.value}
-                        onChange={field.onChange}
-                        placeholder="Search and add movies you liked..."
-                        triggerClassName="bg-input border-border focus:border-primary data-[state=open]:border-primary"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-input/50">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base text-foreground/90">Include Your Favorites?</FormLabel>
-                  <FormDescription className="text-xs">
-                    Allow AI to consider movies & TV shows you've favorited.
-                  </FormDescription>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={includeFavoritesInAI}
-                    onCheckedChange={setIncludeFavoritesInAI}
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-card/5 py-8 sm:py-12 lg:py-16">
+      <motion.div
+        className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Header Section */}
+        <motion.div variants={itemVariants} className="text-center mb-8 sm:mb-12">
+          <div className="flex items-center justify-center mb-4">
+            <div className="p-3 rounded-full bg-gradient-to-r from-amber-500/20 to-red-500/20 border border-amber-500/30">
+              <Sparkles className="w-8 h-8 text-amber-400" />
+            </div>
+          </div>
+          <h1
+            className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight"
+            style={{
+              background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e1 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            AI Movie{" "}
+            <span
+              style={{
+                background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              Suggestions
+            </span>
+          </h1>
+          <p
+            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto"
+            style={{
+              background: "linear-gradient(135deg, #64748b 0%, #475569 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            Tell us about your taste, and our AI will suggest movies you'll love! You can also include your favorited
+            movies and TV shows.
+          </p>
+        </motion.div>
+
+        {/* Main Form Card */}
+        <motion.div variants={itemVariants}>
+          <Card className="shadow-2xl border-amber-500/20 bg-card/80 backdrop-blur-sm">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-xl sm:text-2xl font-bold text-foreground flex items-center">
+                <ThumbsUp className="w-6 h-6 sm:w-7 sm:h-7 mr-3 text-amber-400" />
+                Your Movie Preferences
+              </CardTitle>
+              <CardDescription className="text-muted-foreground text-sm sm:text-base">
+                Help us understand your taste by sharing your movie history and preferences.
+              </CardDescription>
+            </CardHeader>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <CardContent className="space-y-6 sm:space-y-8">
+                  {/* Viewing History */}
+                  <FormField
+                    control={form.control}
+                    name="viewingHistory"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base sm:text-lg font-semibold text-foreground flex items-center">
+                          <Film className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-amber-400" />
+                          Movies You've Watched
+                        </FormLabel>
+                        <FormControl>
+                          <MediaMultiSelect
+                            selected={field.value}
+                            onChange={field.onChange}
+                            placeholder="Search and add movies you've watched..."
+                            triggerClassName="bg-input/50 border-border hover:border-amber-500/50 focus:border-amber-500 transition-colors min-h-[44px]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </FormControl>
-              </FormItem>
-              <FormField
-                control={form.control}
-                name="genrePreferences"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="genrePreferences" className="text-lg text-foreground/90">Preferred Genres</FormLabel>
+
+                  {/* Liked Movies */}
+                  <FormField
+                    control={form.control}
+                    name="likedMovies"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base sm:text-lg font-semibold text-foreground flex items-center">
+                          <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-red-400" />
+                          Movies You Liked{" "}
+                          <span className="text-sm font-normal text-muted-foreground ml-2">
+                            (optional if using favorites)
+                          </span>
+                        </FormLabel>
+                        <FormControl>
+                          <MediaMultiSelect
+                            selected={field.value}
+                            onChange={field.onChange}
+                            placeholder="Search and add movies you liked..."
+                            triggerClassName="bg-input/50 border-border hover:border-red-500/50 focus:border-red-500 transition-colors min-h-[44px]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Include Favorites Toggle */}
+                  <motion.div
+                    variants={itemVariants}
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border border-amber-500/20 p-4 sm:p-6 shadow-sm bg-gradient-to-r from-amber-500/5 to-red-500/5 backdrop-blur-sm"
+                  >
+                    <div className="space-y-1 mb-4 sm:mb-0">
+                      <div className="flex items-center">
+                        <Heart className="w-5 h-5 mr-2 text-red-400" />
+                        <FormLabel className="text-base sm:text-lg font-semibold text-foreground">
+                          Include Your Favorites?
+                        </FormLabel>
+                      </div>
+                      <FormDescription className="text-sm text-muted-foreground">
+                        Allow AI to consider movies & TV shows you've favorited.
+                        {favorites.length > 0 && (
+                          <span className="block mt-1 text-amber-400 font-medium">
+                            You have {favorites.length} favorite{favorites.length !== 1 ? "s" : ""} saved
+                          </span>
+                        )}
+                      </FormDescription>
+                    </div>
                     <FormControl>
-                      <MultiSelect
-                        options={genreOptions}
-                        selected={field.value}
-                        onChange={field.onChange}
-                        placeholder="Select your favorite genres..."
-                        triggerClassName="bg-input border-border focus:border-primary data-[state=open]:border-primary"
+                      <Switch
+                        checked={includeFavoritesInAI}
+                        onCheckedChange={setIncludeFavoritesInAI}
+                        className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-amber-500 data-[state=checked]:to-red-500"
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="count"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="count" className="text-lg text-foreground/90">Number of Suggestions</FormLabel>
-                    <FormControl>
-                      <Input
-                        id="count"
-                        type="number"
-                        min="1"
-                        max="10"
-                        className="w-24 bg-input border-border focus:border-primary"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" disabled={isLoading || genreOptions.length === 0} className="w-full text-lg py-6 bg-primary hover:bg-primary/90 text-primary-foreground">
-                {isLoading ? <LoadingSpinner size={24} className="mr-2" /> : <ThumbsUp className="w-5 h-5 mr-2" />}
-                Get Suggestions
-              </Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
+                  </motion.div>
+
+                  {/* Genre Preferences */}
+                  <FormField
+                    control={form.control}
+                    name="genrePreferences"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base sm:text-lg font-semibold text-foreground flex items-center">
+                          <Settings className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-purple-400" />
+                          Preferred Genres
+                        </FormLabel>
+                        <FormControl>
+                          <MultiSelect
+                            options={genreOptions}
+                            selected={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select your favorite genres..."
+                            triggerClassName="bg-input/50 border-border hover:border-purple-500/50 focus:border-purple-500 transition-colors min-h-[44px]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Number of Suggestions */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="count"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base sm:text-lg font-semibold text-foreground">
+                            Number of Suggestions
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="1"
+                              max="10"
+                              className="bg-input/50 border-border hover:border-primary/50 focus:border-primary transition-colors h-11"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+
+                <CardFooter className="pt-6">
+                  <Button
+                    type="submit"
+                    disabled={isLoading || genreOptions.length === 0}
+                    className="w-full text-base sm:text-lg py-3 sm:py-4 bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-600 hover:to-red-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    style={{
+                      boxShadow: "0 8px 32px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
+                    }}
+                  >
+                    {isLoading ? (
+                      <>
+                        <LoadingSpinner size={20} className="mr-2" />
+                        AI is thinking...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 mr-2" />
+                        Get My Suggestions
+                      </>
+                    )}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          </Card>
+        </motion.div>
 
         {/* Loading State */}
         {isLoading && (
@@ -336,6 +442,7 @@ export default function SuggestionsPage() {
             </Card>
           </motion.div>
         )}
-    </motion.div>
+      </motion.div>
+    </div>
   )
 }
