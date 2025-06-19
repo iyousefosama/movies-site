@@ -1,25 +1,26 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label'; // Keep Label if used directly, but FormLabel is preferred within FormField
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { suggestMovies, MovieSuggestionsInput, MovieSuggestionsOutput } from '@/ai/flows/movie-suggestions';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Film, ThumbsUp, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Film, ThumbsUp, CheckCircle, ListFilter } from 'lucide-react';
+import { getGenreMap } from '@/lib/tmdb';
+import { MultiSelect, MultiSelectOption } from '@/components/ui/multi-select';
 
 const suggestionFormSchema = z.object({
   viewingHistory: z.string().min(1, "Please enter at least one movie you've watched.").max(500, "Viewing history is too long."),
   likedMovies: z.string().min(1, "Please enter at least one movie you liked.").max(500, "Liked movies list is too long."),
-  genrePreferences: z.string().min(1, "Please tell us your preferred genres.").max(200, "Genre preferences are too long."),
+  genrePreferences: z.array(z.string()).min(1, "Please select at least one genre.").max(10, "Please select no more than 10 genres."),
   count: z.coerce.number().min(1, "Suggest at least 1 movie.").max(10, "Cannot suggest more than 10 movies.").default(3),
 });
 
@@ -28,14 +29,42 @@ type SuggestionFormValues = z.infer<typeof suggestionFormSchema>;
 export default function SuggestionsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
+  const [genreOptions, setGenreOptions] = useState<MultiSelectOption[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchGenres() {
+      try {
+        const movieGenresMap = await getGenreMap('movie');
+        const tvGenresMap = await getGenreMap('tv');
+        
+        const combinedGenres: Record<string, string> = {};
+        Object.entries(movieGenresMap).forEach(([id, name]) => combinedGenres[name] = name); // Use name as key to avoid duplicates by name
+        Object.entries(tvGenresMap).forEach(([id, name]) => combinedGenres[name] = name);
+
+        const options = Object.keys(combinedGenres)
+          .map(name => ({ value: name, label: name }))
+          .sort((a, b) => a.label.localeCompare(b.label));
+        
+        setGenreOptions(options);
+      } catch (error) {
+        console.error("Failed to fetch genres:", error);
+        toast({
+          title: "Error",
+          description: "Could not load genre options.",
+          variant: "destructive",
+        });
+      }
+    }
+    fetchGenres();
+  }, [toast]);
 
   const form = useForm<SuggestionFormValues>({
     resolver: zodResolver(suggestionFormSchema),
     defaultValues: {
       viewingHistory: '',
       likedMovies: '',
-      genrePreferences: '',
+      genrePreferences: [],
       count: 3,
     },
   });
@@ -47,7 +76,7 @@ export default function SuggestionsPage() {
       const input: MovieSuggestionsInput = {
         viewingHistory: data.viewingHistory.split(',').map(s => s.trim()).filter(Boolean),
         likedMovies: data.likedMovies.split(',').map(s => s.trim()).filter(Boolean),
-        genrePreferences: data.genrePreferences.split(',').map(s => s.trim()).filter(Boolean),
+        genrePreferences: data.genrePreferences, // Already an array
         count: data.count,
       };
       const result: MovieSuggestionsOutput = await suggestMovies(input);
@@ -56,7 +85,7 @@ export default function SuggestionsPage() {
         title: "Suggestions Ready!",
         description: "Here are some movies you might like.",
         variant: "default",
-        action: <CheckCircle className="text-green-500" />, // Using a standard checkmark from lucide
+        action: <CheckCircle className="text-green-500" />,
       });
     } catch (error) {
       console.error("Error fetching suggestions:", error);
@@ -78,7 +107,7 @@ export default function SuggestionsPage() {
             <ThumbsUp className="w-8 h-8 mr-3" /> AI Movie Suggestions
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Tell us about your taste, and our AI will suggest movies you might love! Separate multiple entries with commas.
+            Tell us about your taste, and our AI will suggest movies you might love! For watched/liked movies, separate multiple entries with commas.
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -127,11 +156,12 @@ export default function SuggestionsPage() {
                   <FormItem>
                     <FormLabel htmlFor="genrePreferences" className="text-lg text-foreground/90">Preferred Genres</FormLabel>
                     <FormControl>
-                      <Input
-                        id="genrePreferences"
-                        placeholder="e.g., Sci-Fi, Thriller, Animation"
-                        className="bg-input border-border focus:border-primary"
-                        {...field}
+                      <MultiSelect
+                        options={genreOptions}
+                        selected={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select your favorite genres..."
+                        triggerClassName="bg-input border-border focus:border-primary data-[state=open]:border-primary"
                       />
                     </FormControl>
                     <FormMessage />
@@ -160,7 +190,7 @@ export default function SuggestionsPage() {
               />
             </CardContent>
             <CardFooter>
-              <Button type="submit" disabled={isLoading} className="w-full text-lg py-6 bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Button type="submit" disabled={isLoading || genreOptions.length === 0} className="w-full text-lg py-6 bg-primary hover:bg-primary/90 text-primary-foreground">
                 {isLoading ? <LoadingSpinner size={24} className="mr-2" /> : <ThumbsUp className="w-5 h-5 mr-2" />}
                 Get Suggestions
               </Button>

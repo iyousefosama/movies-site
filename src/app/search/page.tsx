@@ -1,74 +1,204 @@
+
+"use client"; // Converted to client component for state management (sorting)
+
+import { useState, useEffect, Suspense, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { searchMedia, getGenreMap } from '@/lib/tmdb';
+import type { TMDBMediaItem } from '@/types/tmdb';
 import { MovieCard } from '@/components/movies/MovieCard';
 import { PaginationControls } from '@/components/movies/PaginationControls';
-import { Suspense } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { Metadata } from 'next';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { SearchX } from 'lucide-react';
 
-interface SearchPageProps {
-  searchParams: {
-    query?: string;
-    page?: string;
-  };
+
+interface SearchResultsData {
+  results: TMDBMediaItem[];
+  totalPages: number;
+  currentPage: number;
+  totalResults: number;
 }
 
-export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
-  const query = searchParams.query || "";
-  if (query) {
-    return {
-      title: `Search results for "${query}" | Movista`,
-      description: `Find movies and TV shows matching "${query}" on Movista.`,
-    };
+type SortBy = "relevance" | "title" | "release_date" | "vote_average";
+type SortOrder = "asc" | "desc";
+
+function SearchResultsDisplay() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get('query') || '';
+  const page = parseInt(searchParams.get('page') || '1', 10);
+
+  const [searchResults, setSearchResults] = useState<SearchResultsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [movieGenres, setMovieGenres] = useState<Record<number, string>>({});
+  const [tvGenres, setTvGenres] = useState<Record<number, string>>({});
+
+  const [sortBy, setSortBy] = useState<SortBy>("relevance");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!query) {
+        setSearchResults(null);
+        setIsLoading(false);
+        setError(null);
+        return;
+      }
+      setIsLoading(true);
+      setError(null);
+      try {
+        const [resultsData, movieGenresMap, tvGenresMap] = await Promise.all([
+          searchMedia(query, page),
+          getGenreMap('movie'),
+          getGenreMap('tv')
+        ]);
+        setSearchResults({
+          results: resultsData.results,
+          totalPages: resultsData.total_pages,
+          currentPage: resultsData.page,
+          totalResults: resultsData.total_results,
+        });
+        setMovieGenres(movieGenresMap);
+        setTvGenres(tvGenresMap);
+      } catch (err) {
+        console.error("Search page error:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch search results.");
+        setSearchResults(null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, [query, page]);
+
+  const sortedAndFilteredResults = useMemo(() => {
+    if (!searchResults?.results) return [];
+
+    const filtered = searchResults.results.filter(item => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path);
+
+    if (sortBy === "relevance") { // API returns by relevance by default
+      return filtered;
+    }
+
+    return [...filtered].sort((a, b) => {
+      let valA: string | number | Date = 0;
+      let valB: string | number | Date = 0;
+
+      switch (sortBy) {
+        case "title":
+          valA = (a.title || a.name || "").toLowerCase();
+          valB = (b.title || b.name || "").toLowerCase();
+          break;
+        case "release_date":
+          valA = new Date(a.release_date || a.first_air_date || "1900-01-01").getTime();
+          valB = new Date(b.release_date || b.first_air_date || "1900-01-01").getTime();
+          break;
+        case "vote_average":
+          valA = a.vote_average || 0;
+          valB = b.vote_average || 0;
+          break;
+      }
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [searchResults, sortBy, sortOrder]);
+
+  if (isLoading) {
+    return <LoadingSpinner className="h-96" />;
   }
-  return {
-    title: "Search | Movista",
-    description: "Search for movies and TV shows on Movista.",
-  };
-}
 
-async function SearchResults({ query, page }: { query: string, page: number }) {
+  if (error) {
+    return <Alert variant="destructive" className="my-8">
+      <SearchX className="h-4 w-4" />
+      <AlertTitle>Error</AlertTitle>
+      <AlertDescription>{error}</AlertDescription>
+    </Alert>;
+  }
+  
   if (!query) {
     return <p className="text-center text-muted-foreground py-8">Please enter a search term to find movies or TV shows.</p>;
   }
 
-  const [searchResults, movieGenres, tvGenres] = await Promise.all([
-    searchMedia(query, page),
-    getGenreMap('movie'),
-    getGenreMap('tv')
-  ]);
-
-  if (searchResults.results.length === 0) {
+  if (!searchResults || sortedAndFilteredResults.length === 0 && searchResults.totalResults === 0) {
     return <p className="text-center text-muted-foreground py-8">No results found for &quot;{query}&quot;.</p>;
   }
-
-  const getMediaType = (item: any): 'movie' | 'tv' => {
+  
+  const getMediaType = (item: TMDBMediaItem): 'movie' | 'tv' => {
     return item.media_type === 'movie' || item.title ? 'movie' : 'tv';
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-headline font-semibold text-primary mb-6">
-        Search Results for &quot;{query}&quot;
-      </h1>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-        {searchResults.results
-          .filter(item => item.media_type === 'movie' || item.media_type === 'tv') // Filter out persons etc.
-          .map((item) => {
-            const mediaType = getMediaType(item);
-            return (
-              <MovieCard
-                key={item.id}
-                item={item}
-                mediaType={mediaType}
-                genres={mediaType === 'movie' ? movieGenres : tvGenres}
-              />
-            );
-        })}
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <h1 className="text-2xl md:text-3xl font-headline font-semibold text-primary">
+          Search Results for &quot;{query}&quot;
+          {searchResults && searchResults.totalResults > 0 && (
+            <span className="text-sm text-muted-foreground ml-2">({searchResults.totalResults} found)</span>
+          )}
+        </h1>
+        {sortedAndFilteredResults.length > 0 && (
+          <div className="flex gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="sort-by" className="text-sm text-muted-foreground">Sort by:</Label>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
+                <SelectTrigger id="sort-by" className="w-[150px] h-9 text-sm">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevance</SelectItem>
+                  <SelectItem value="title">Title</SelectItem>
+                  <SelectItem value="release_date">Release Date</SelectItem>
+                  <SelectItem value="vote_average">Rating</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as SortOrder)} disabled={sortBy === "relevance"}>
+                <SelectTrigger id="sort-order" className="w-[120px] h-9 text-sm">
+                  <SelectValue placeholder="Order" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">Descending</SelectItem>
+                  <SelectItem value="asc">Ascending</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
       </div>
-      {searchResults.total_pages > 1 && (
+
+      {sortedAndFilteredResults.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+          {sortedAndFilteredResults.map((item) => {
+              const mediaType = getMediaType(item);
+              return (
+                <MovieCard
+                  key={`${item.id}-${item.media_type}`}
+                  item={item}
+                  mediaType={mediaType}
+                  genres={mediaType === 'movie' ? movieGenres : tvGenres}
+                />
+              );
+          })}
+        </div>
+      ) : (
+         <p className="text-center text-muted-foreground py-8">No displayable results found for &quot;{query}&quot; after filtering.</p>
+      )}
+
+      {searchResults && searchResults.totalPages > 1 && (
         <PaginationControls
-          currentPage={searchResults.page}
-          totalPages={Math.min(searchResults.total_pages, 500)} // TMDB API limit
+          currentPage={searchResults.currentPage}
+          totalPages={Math.min(searchResults.totalPages, 500)} // TMDB API limit
           basePath={`/search?query=${encodeURIComponent(query)}&page=`}
         />
       )}
@@ -77,13 +207,12 @@ async function SearchResults({ query, page }: { query: string, page: number }) {
 }
 
 
-export default function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.query || '';
-  const page = parseInt(searchParams.page || '1', 10);
-
+// This outer component ensures that useSearchParams can be used by SearchResultsDisplay
+// And handles the Suspense boundary for client-side data fetching.
+export default function SearchPage() {
   return (
     <Suspense fallback={<LoadingSpinner className="h-96" />}>
-      <SearchResults query={query} page={page} />
+      <SearchResultsDisplay />
     </Suspense>
   );
 }
