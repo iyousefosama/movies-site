@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { suggestMovies, MovieSuggestionsInput, MovieSuggestionsOutput } from '@/ai/flows/movie-suggestions';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +18,6 @@ import { MultiSelect, MultiSelectOption } from '@/components/ui/multi-select';
 import { MediaMultiSelect } from '@/components/ui/media-multi-select';
 import { useFavorites } from '@/context/FavoritesContext';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { motion } from 'framer-motion';
 
 const suggestionFormSchema = z.object({
@@ -108,16 +107,14 @@ export default function SuggestionsPage() {
   const onSubmit: SubmitHandler<SuggestionFormValues> = async (data) => {
     setIsLoading(true);
     setSuggestions(null);
-    form.clearErrors("likedMovies"); // Clear previous manual error
+    form.clearErrors("likedMovies"); 
 
     let finalLikedMovies = [...data.likedMovies];
     if (includeFavoritesInAI && favorites.length > 0) {
       const favoriteTitles = favorites.map(fav => fav.title);
-      // Avoid duplicates
       finalLikedMovies = [...new Set([...finalLikedMovies, ...favoriteTitles])];
     }
 
-    // Validation for liked movies if favorites are not included or empty
     if (finalLikedMovies.length === 0) {
         form.setError("likedMovies", {
           type: "manual",
