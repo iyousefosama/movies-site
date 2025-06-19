@@ -96,7 +96,7 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
 
   const handleSuggestionClick = (item: TMDBMediaItem) => {
     const query = item.title || item.name || '';
-    setSearchValue(query); 
+    setSearchValue(query);
     setShowSuggestions(false);
     router.push(`/search?query=${encodeURIComponent(query)}`);
      if(inputRef.current) inputRef.current.blur();
@@ -113,7 +113,7 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
       <motion.div
           ref={searchContainerRef}
           className={cn("relative w-full", className)}
-          whileHover={{ scale: 1.0 }} 
+          whileHover={{ scale: 1.0 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         <form onSubmit={handleFormSubmit} className="relative">
@@ -132,14 +132,14 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
                 setIsFocused(true);
                 if (searchValue.trim().length >= 2) setShowSuggestions(true);
               }}
-              onBlur={() => setIsFocused(false)} 
+              onBlur={() => setIsFocused(false)}
               placeholder={placeholder}
               className="w-full pl-10 pr-10 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 text-sm"
           />
           {searchValue && (
-            <button 
-              type="button" 
-              onClick={clearSearch} 
+            <button
+              type="button"
+              onClick={clearSearch}
               className="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/70 hover:text-primary"
               aria-label="Clear search"
             >
@@ -153,7 +153,7 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full left-0 right-0 w-full mt-2 bg-card border border-border rounded-lg shadow-xl z-[60] max-h-96 overflow-y-auto"
+                className="absolute top-full left-0 right-0 w-full mt-2 bg-card border border-border rounded-lg shadow-xl z-[100] max-h-96 overflow-y-auto"
             >
               {isLoadingSuggestions && (
                 <div className="p-4 flex items-center justify-center text-muted-foreground">
@@ -172,13 +172,13 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
                       <li key={`${item.id}-${item.media_type}`}>
                         <button
                           type="button"
-                          onMouseDown={(e) => { 
-                            e.preventDefault(); 
+                          onMouseDown={(e) => {
+                            e.preventDefault();
                             handleSuggestionClick(item);
                           }}
                           className="w-full text-left px-3 py-2.5 hover:bg-accent hover:text-accent-foreground transition-colors duration-150 flex items-center gap-3 text-sm"
                         >
-                          <Image 
+                          <Image
                             src={getImageUrl(item.poster_path, 'w92')}
                             alt={itemTitle}
                             width={32}
