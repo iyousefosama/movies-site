@@ -1,14 +1,14 @@
-"use client"; // Required for usePathname
-
-import type { Metadata } from 'next'; // Keep for potential future use if client component structure changes
+// "use client"; // This is now a server component
+import type { Metadata, Viewport } from 'next'; // Keep for potential future use if client component structure changes
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Header } from '@/components/layout/Header';
+// import { Header } from '@/components/layout/Header'; // Moved to ClientLayout
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from './providers';
 import { FavoritesProvider } from '@/context/FavoritesContext'; // Added import
-import { usePathname } from 'next/navigation';
+// import { usePathname } from 'next/navigation'; // Moved to ClientLayout
+import { ClientLayout } from '@/components/layout/ClientLayout';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -50,7 +50,6 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
     apple: '/apple-touch-icon.png', // Optional
   },
-  themeColor: '#18181b',
 };
 
 export default function RootLayout({
@@ -58,8 +57,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
-  const isHomePage = pathname === '/';
+  // const pathname = usePathname(); // Logic moved to ClientLayout
+  // const isHomePage = pathname === '/'; // Logic moved to ClientLayout
 
   return (
     <html lang="en" className="dark">
@@ -68,11 +67,8 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-body antialiased flex flex-col min-h-screen bg-background text-foreground`}>
         <Providers>
-          <FavoritesProvider> {/* Added FavoritesProvider */}
-            {!isHomePage && <Header />} {/* Conditionally render Header */}
-            <main className={`flex-grow container mx-auto px-4 ${isHomePage ? 'py-0' : 'py-8'}`}>
-              {children}
-            </main>
+          <FavoritesProvider>
+            <ClientLayout>{children}</ClientLayout>
             <Footer />
             <Toaster />
           </FavoritesProvider>

@@ -40,7 +40,7 @@ export function HeroSection() {
       animate="visible"
     >
       <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
-        <motion.div variants={itemVariants} className="relative mb-8 mx-auto">
+{/*         <motion.div variants={itemVariants} className="relative mb-8 mx-auto">
           <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl h-24 md:h-28 lg:h-32 mx-auto">
             <Image
                 src="/logo.png" 
@@ -51,7 +51,7 @@ export function HeroSection() {
                 data-ai-hint="logo app logo"
             />
           </div>
-        </motion.div>
+        </motion.div> */}
 
         <motion.div variants={itemVariants} className="mb-8 sm:mb-12">
           <motion.h1
