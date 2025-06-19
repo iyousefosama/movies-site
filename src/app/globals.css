@@ -23,8 +23,8 @@ body {
     --popover: 220 30% 8%; /* Match card for consistency */
     --popover-foreground: 45 15% 92%;
 
-    --primary: 38 92% 50%; /* Golden amber primary */
-    --primary-foreground: 222 84% 4%;
+    --primary: 182 100% 75%; /* Electric Blue (was 38 92% 50% Golden amber) */
+    --primary-foreground: 222 84% 4%; /* Dark blue/black for contrast */
 
     --secondary: 220 25% 12%; /* Darker secondary with blue undertone */
     --secondary-foreground: 45 15% 92%;
@@ -40,11 +40,11 @@ body {
 
     --border: 220 25% 15%; /* Subtle borders */
     --input: 220 30% 8%; /* Match muted background */
-    --ring: 38 92% 50%; /* Golden focus rings */
+    --ring: 182 100% 75%; /* Electric Blue (was 38 92% 50% Golden focus rings) */
 
     --radius: 0.75rem; /* Slightly more rounded for modern look */
 
-    --chart-1: 38 92% 50%; /* Golden amber */
+    --chart-1: 182 100% 75%; /* Electric Blue (was 38 92% 50% Golden amber) */
     --chart-2: 345 85% 58%; /* Cinematic red */
     --chart-3: 262 83% 58%; /* Purple */
     --chart-4: 217 91% 60%; /* Blue */
@@ -52,12 +52,12 @@ body {
 
     --sidebar-background: 222 84% 4%;
     --sidebar-foreground: 45 15% 92%;
-    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary: 182 100% 75%; /* Electric Blue */
     --sidebar-primary-foreground: 222 84% 4%;
     --sidebar-accent: 345 85% 58%;
     --sidebar-accent-foreground: 45 15% 92%;
     --sidebar-border: 220 25% 15%;
-    --sidebar-ring: 38 92% 50%;
+    --sidebar-ring: 182 100% 75%; /* Electric Blue */
   }
 
   .dark {
@@ -70,8 +70,8 @@ body {
     --popover: 220 35% 6%;
     --popover-foreground: 45 15% 95%;
 
-    --primary: 38 92% 55%; /* Slightly brighter golden */
-    --primary-foreground: 222 84% 3%;
+    --primary: 182 100% 80%; /* Electric Blue, slightly brighter (was 38 92% 55%) */
+    --primary-foreground: 222 84% 3%; /* Dark blue/black for contrast */
 
     --secondary: 220 30% 8%;
     --secondary-foreground: 45 15% 95%;
@@ -87,9 +87,9 @@ body {
 
     --border: 220 25% 12%;
     --input: 220 35% 6%;
-    --ring: 38 92% 55%;
+    --ring: 182 100% 80%; /* Electric Blue, slightly brighter (was 38 92% 55%) */
 
-    --chart-1: 38 92% 55%; /* Brighter golden */
+    --chart-1: 182 100% 80%; /* Electric Blue, slightly brighter (was 38 92% 55%) */
     --chart-2: 345 85% 62%; /* Brighter red */
     --chart-3: 262 83% 62%; /* Brighter purple */
     --chart-4: 217 91% 65%; /* Brighter blue */
@@ -97,12 +97,12 @@ body {
 
     --sidebar-background: 222 84% 3%;
     --sidebar-foreground: 45 15% 95%;
-    --sidebar-primary: 38 92% 55%;
+    --sidebar-primary: 182 100% 80%; /* Electric Blue, slightly brighter */
     --sidebar-primary-foreground: 222 84% 3%;
     --sidebar-accent: 345 85% 62%;
     --sidebar-accent-foreground: 45 15% 95%;
     --sidebar-border: 220 25% 12%;
-    --sidebar-ring: 38 92% 55%;
+    --sidebar-ring: 182 100% 80%; /* Electric Blue, slightly brighter */
   }
 }
 
@@ -115,7 +115,7 @@ body {
     @apply bg-background text-foreground;
     scroll-behavior: smooth;
     /* Add subtle texture for cinematic feel */
-    background-image: radial-gradient(circle at 1px 1px, rgba(251, 191, 36, 0.03) 1px, transparent 0);
+    background-image: radial-gradient(circle at 1px 1px, hsla(var(--primary) / 0.03) 1px, transparent 0); /* Updated to use primary color */
     background-size: 20px 20px;
   }
 
@@ -152,7 +152,7 @@ body {
       hsl(var(--primary) / 0.3);
   }
 
-  /* Enhance focus states with golden glow */
+  /* Enhance focus states with primary glow */
   .focus-cinematic:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary) / 0.5), 0 0 20px
@@ -176,8 +176,8 @@ body {
   }
 
   /* Cinematic text gradient utilities */
-  .text-gradient-gold {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  .text-gradient-primary { /* Renamed from gold to primary for generic use */
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 50%, hsl(var(--primary)/0.6) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
