@@ -2,11 +2,12 @@ import type { TMDBMediaItem } from '@/types/tmdb';
 import { MovieCard } from './MovieCard';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronRight } from 'lucide-react';
+import Link from 'next/link'; // Import Link
 
 interface TrendingSectionProps {
   title: string;
   items: TMDBMediaItem[];
-  mediaType: 'movie' | 'tv';
+  mediaType: 'movie' | 'tv'; // Keep for consistency, though image implies mixed or just movies
   genres: Record<number, string>;
   viewAllLink?: string;
 }
@@ -19,23 +20,25 @@ export function TrendingSection({ title, items, mediaType, genres, viewAllLink }
   return (
     <section className="mb-12">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-3xl font-headline font-semibold text-primary">{title}</h2>
+        <h2 className="text-3xl font-headline font-semibold text-foreground">{title}</h2> {/* Changed text color to foreground based on image */}
         {viewAllLink && (
-           <a href={viewAllLink} className="text-accent hover:text-accent/80 transition-colors flex items-center">
-            View All <ChevronRight className="w-5 h-5 ml-1" />
-          </a>
+           <Link href={viewAllLink} className="text-accent hover:text-accent/80 transition-colors flex items-center text-sm">
+            View All <ChevronRight className="w-4 h-4 ml-1" />
+          </Link>
         )}
       </div>
       <ScrollArea className="w-full whitespace-nowrap rounded-md">
         <div className="flex space-x-4 pb-4">
-          {items.slice(0,10).map((item, index) => ( // Show top 10, with rank
+          {items.map((item, index) => (
             <MovieCard 
               key={item.id} 
               item={item} 
-              mediaType={mediaType}
+              // Determine mediaType for each item if it's mixed, otherwise use passed prop
+              mediaType={item.media_type === 'tv' ? 'tv' : 'movie'} 
               genres={genres}
               rank={index + 1} 
-              className="w-60 md:w-72 flex-shrink-0" // Fixed width for horizontal scroll items
+              variant="trending" // Use trending variant
+              className="w-[150px] md:w-[180px] flex-shrink-0" // Adjusted width for trending cards
             />
           ))}
         </div>

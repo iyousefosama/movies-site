@@ -4,46 +4,56 @@ import { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export function SearchBar() {
+interface SearchBarProps {
+  placeholder?: string;
+  className?: string;
+}
+
+export function SearchBar({ placeholder = "Search movies & TV shows...", className }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('query') || '');
 
+  // To handle router object, particularly on initial render or if router is not ready.
+  const currentPathname = typeof window !== 'undefined' ? window.location.pathname : '';
+
+
   useEffect(() => {
     // Update query state if URL changes (e.g. browser back/forward)
-    setQuery(searchParams.get('query') || '');
-  }, [searchParams]);
+    // and we are not on the search page itself, to avoid clearing input when navigating search pages
+    if (!currentPathname.startsWith('/search')) {
+        setQuery(searchParams.get('query') || '');
+    }
+  }, [searchParams, currentPathname]);
   
   const handleSearch = (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (query.trim()) {
       router.push(`/search?query=${encodeURIComponent(query.trim())}`);
     } else {
-      // If query is empty, maybe navigate to home or clear search results.
-      // For now, if on search page and query becomes empty, it will show empty results.
-      // If not on search page, it won't do anything.
-      if (pathname.startsWith('/search')) {
-         router.push('/search');
+      if (currentPathname.startsWith('/search')) {
+         router.push('/search'); // Clear search results if on search page and query is empty
       }
     }
   };
 
-  // To handle router object, particularly on initial render or if router is not ready.
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
-
-
   return (
-    <form onSubmit={handleSearch} className="relative w-full">
+    <form onSubmit={handleSearch} className={cn("relative w-full", className)}>
       <Input
         type="search"
-        placeholder="Search movies & TV shows..."
+        placeholder={placeholder}
         value={query}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-        className="h-10 pl-10 pr-4 rounded-full border-2 border-primary/50 focus:border-primary focus:ring-primary bg-card text-card-foreground placeholder:text-muted-foreground"
-        aria-label="Search movies and TV shows"
+        className="h-12 pl-12 pr-4 rounded-lg border-2 border-input bg-card focus:border-primary focus:ring-primary text-card-foreground placeholder:text-muted-foreground text-base"
+        aria-label="Search"
       />
-      <button type="submit" aria-label="Submit search" className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/80 hover:text-primary">
+      <button 
+        type="submit" 
+        aria-label="Submit search" 
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+      >
         <Search className="h-5 w-5" />
       </button>
     </form>

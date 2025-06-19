@@ -3,6 +3,7 @@ import { TrendingSection } from '@/components/movies/TrendingSection';
 import { PopularGrid } from '@/components/movies/PopularGrid';
 import { Suspense } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { HeroSection } from '@/components/home/HeroSection';
 
 export const revalidate = 3600; // Revalidate data every hour
 
@@ -26,44 +27,34 @@ async function HomePageContent() {
 
   return (
     <div className="space-y-12">
+      <HeroSection />
       <TrendingSection 
-        title="🔥 Trending Movies" 
-        items={trendingMoviesData.results} 
+        title="Trending" 
+        items={trendingMoviesData.results.slice(0, 6)} 
         mediaType="movie"
         genres={movieGenres}
-        viewAllLink="/popular/movie/1" 
       />
-      <TrendingSection 
-        title="📺 Trending TV Shows" 
-        items={trendingTVData.results} 
-        mediaType="tv"
-        genres={tvGenres}
-        viewAllLink="/popular/tv/1"
-      />
-      
       <PopularGrid 
-        title="🌟 Popular Movies"
-        items={popularMoviesData.results}
+        title="Popular Movies"
+        items={popularMoviesData.results.slice(0, 8)} // 2 rows of 4
         mediaType="movie"
         genres={movieGenres}
-        currentPage={1}
-        totalPages={popularMoviesData.total_pages}
         basePath="/popular/movie/"
+        showViewAllLink={true}
+        showPagination={false} // No pagination directly on homepage grid
       />
-
       <PopularGrid 
-        title="🌟 Popular TV Shows"
-        items={popularTVData.results}
+        title="Popular TV Shows"
+        items={popularTVData.results.slice(0, 8)} // 2 rows of 4
         mediaType="tv"
         genres={tvGenres}
-        currentPage={1}
-        totalPages={popularTVData.total_pages}
         basePath="/popular/tv/"
+        showViewAllLink={true}
+        showPagination={false} // No pagination directly on homepage grid
       />
     </div>
   );
 }
-
 
 export default function Home() {
   return (
