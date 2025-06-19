@@ -34,7 +34,7 @@ export function HeroSection() {
   const popularGenres = ["Action", "Comedy", "Sci-Fi", "Drama", "Horror", "Animation"]; 
   return (
       <motion.section
-          className="relative text-center py-12 md:py-16 lg:py-20 min-h-[60vh] md:min-h-[50vh] flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/10" // Removed overflow-hidden
+          className="relative text-center py-12 md:py-16 lg:py-20 min-h-[60vh] md:min-h-[50vh] flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/10"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -46,7 +46,7 @@ export function HeroSection() {
           <motion.div variants={itemVariants} className="relative mb-8 mx-auto">
             <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl h-24 md:h-28 lg:h-32 mx-auto">
               <Image
-                  src="https://placehold.co/600x150.png"
+                  src="/logo.png" 
                   alt="Movista stylized logo or movie reel"
                   fill
                   className="object-contain"
