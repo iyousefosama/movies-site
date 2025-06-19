@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { SearchBar } from '@/components/search/SearchBar';
-import { Clapperboard, Home, Lightbulb, Wand2 } from 'lucide-react'; // Added Wand2 for suggestions
+import { Clapperboard, Home, Wand2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -13,7 +13,7 @@ export function Header() {
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/suggestions', label: 'AI Suggestions', icon: Wand2 }, // Changed Icon and Label
+    { href: '/suggestions', label: 'AI Suggestions', icon: Wand2 },
   ];
 
   return (
@@ -24,7 +24,7 @@ export function Header() {
           <span className="font-headline text-2xl font-bold">Movista</span>
         </Link>
         
-        <nav className="flex items-center space-x-1"> {/* Reduced space for tighter nav */}
+        <nav className="hidden md:flex items-center space-x-2"> {/* Use space-x-2 or space-x-4 for more spacing */}
           {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
@@ -32,8 +32,8 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ease-out hover:text-primary",
-                  isActive ? "text-primary font-semibold" : "text-foreground/70 hover:text-foreground/90"
+                  "relative px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 ease-out hover:text-primary", // Increased px-4
+                  isActive ? "text-primary font-semibold" : "text-foreground/80 hover:text-foreground" // Slightly brighter non-active
                 )}
               >
                 <item.icon className="inline-block h-5 w-5 mr-1.5 mb-0.5" />
@@ -41,7 +41,7 @@ export function Header() {
                 {isActive && (
                   <motion.div 
                     className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                    layoutId="activeNavUnderline" // For smooth animation between active links
+                    layoutId="activeNavUnderline" 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3 }}
@@ -52,8 +52,8 @@ export function Header() {
           })}
         </nav>
 
-        <div className="w-full max-w-xs">
-          <SearchBar />
+        <div className="w-full flex-1 md:flex-none md:w-auto md:max-w-md ml-4"> {/* Adjusted width and flex behavior */}
+          <SearchBar placeholder="Search Movista..." />
         </div>
       </div>
     </header>

@@ -1,8 +1,10 @@
+
 "use client"
 
 import Image from "next/image"
 import { SearchBar } from "@/components/search/SearchBar"
 import { motion } from "framer-motion"
+import Link from "next/link" // Import Link for genre buttons
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,50 +30,28 @@ const itemVariants = {
   },
 }
 
-const floatingVariants = {
-  animate: {
-    y: [-10, 10, -10],
-    rotate: [0, 5, -5, 0],
-    transition: {
-      duration: 6,
-      repeat: Number.POSITIVE_INFINITY,
-      ease: "easeInOut",
-    },
-  },
-}
-
-const sparkleVariants = {
-  animate: {
-    scale: [1, 1.2, 1],
-    opacity: [0.5, 1, 0.5],
-    transition: {
-      duration: 2,
-      repeat: Number.POSITIVE_INFINITY,
-      ease: "easeInOut",
-    },
-  },
-}
-
 export function HeroSection() {
+  const popularGenres = ["Action", "Comedy", "Sci-Fi", "Drama"];
   return (
       <motion.section
-          className="relative text-center py-12 md:py-16 lg:py-20 overflow-hidden min-h-[50vh] flex flex-col items-center justify-center"
+          className="relative text-center py-12 md:py-16 lg:py-20 overflow-hidden min-h-[60vh] md:min-h-[50vh] flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/10"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
       >
 
         {/* Main Content */}
-        <div className="relative z-10 max-w-6xl mx-auto px-4">
+        <div className="relative z-10 max-w-3xl mx-auto px-4">
           {/* Hero Image with Modern Frame */}
           <motion.div variants={itemVariants} className="relative mb-8 mx-auto">
-            <div className="relative w-full max-w-xl md:max-w-2xl lg:max-w-3xl h-32 md:h-40 lg:h-48 mx-auto">
+            <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl h-24 md:h-28 lg:h-32 mx-auto">
               <Image
-                  src="https://placehold.co/800x400.png"
-                  alt="Movie posters collage showcasing popular films"
+                  src="https://placehold.co/600x150.png" // Adjusted aspect ratio for a logotype
+                  alt="Movista stylized logo or movie reel"
                   fill
                   className="object-contain"
                   priority
+                  data-ai-hint="logo movie"
               />
             </div>
           </motion.div>
@@ -79,61 +59,49 @@ export function HeroSection() {
           {/* Enhanced Typography */}
           <motion.div variants={itemVariants} className="mb-8">
             <motion.h1
-                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
-                style={{
-                  background: "linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #cbd5e1 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
+                className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 leading-tight text-balance bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
             >
-              Find{" "}
-              <span
-                  style={{
-                    background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-              >
-              Movies
-            </span>
-              <br />
-              You&apos;ll Love
+              Find Movies You&apos;ll Love
             </motion.h1>
             <motion.p
-                className="text-xl md:text-2xl text-slate-300 max-w-2xl mx-auto leading-relaxed"
+                className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed text-balance"
                 variants={itemVariants}
             >
-              Discover your next favorite film with our intelligent search.{" "}
-              <span className="text-blue-400">No more endless scrolling.</span>
+              Discover your next favorite film without the hassle. Explore over 300,000 titles.
             </motion.p>
           </motion.div>
 
           {/* Enhanced Search Section */}
-          <motion.div variants={itemVariants} className="relative max-w-xl mx-auto">
-            <SearchBar placeholder="Search for movies, actors, or genres..." />
+          <motion.div variants={itemVariants} className="relative max-w-lg mx-auto">
+            <SearchBar placeholder="Search through 300,000+ titles..." />
 
             {/* Popular Searches */}
-            <motion.div className="mt-4 flex flex-wrap gap-2 justify-center items-center" variants={itemVariants}>
-              <span className="text-sm text-slate-400 mr-2">Popular:</span>
-              {["Action", "Comedy", "Sci-Fi", "Drama"].map((genre, index) => (
-                  <motion.button
-                      key={genre}
-                      className="px-3 py-1 text-sm bg-slate-800 hover:bg-slate-700 rounded-full text-slate-300 hover:text-white transition-all duration-200"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1 + index * 0.1 }}
+            <motion.div 
+              className="mt-6 flex flex-wrap gap-2 justify-center items-center" 
+              variants={itemVariants}
+              initial="hidden" // These items can also have their own stagger
+              animate="visible"
+              transition={{ staggerChildren: 0.1, delayChildren: 0.5 }}
+            >
+              <span className="text-sm text-muted-foreground mr-2">Popular Genres:</span>
+              {popularGenres.map((genre, index) => (
+                  <motion.div
+                    key={genre}
+                    variants={itemVariants} // Reuse itemVariants for individual genre buttons
                   >
-                    {genre}
-                  </motion.button>
+                    <Link href={`/search?query=${encodeURIComponent(genre)}`} passHref>
+                      <motion.button
+                          className="px-3 py-1.5 text-xs bg-card hover:bg-accent/80 rounded-full text-foreground hover:text-accent-foreground transition-all duration-200 border border-border hover:border-accent"
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
+                      >
+                        {genre}
+                      </motion.button>
+                    </Link>
+                  </motion.div>
               ))}
             </motion.div>
           </motion.div>
-
-          {/* Stats Section */}
         </div>
       </motion.section>
   )
