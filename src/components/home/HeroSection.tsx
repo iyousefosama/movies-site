@@ -1,10 +1,8 @@
-
 "use client"
-
-import Image from "next/image"
 import { SearchBar } from "@/components/search/SearchBar"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { ChevronDown } from "lucide-react"
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -24,17 +22,23 @@ const itemVariants = {
     y: 0,
     transition: {
       type: "spring",
-      stiffness: 100,
-      damping: 12,
+      stiffness: 120,
+      damping: 14,
     },
   },
 }
 
+const shimmerEffect = {
+  backgroundImage: "linear-gradient(110deg, #1a1a1a 8%, #2a2a2a 18%, #1a1a1a 33%)",
+  backgroundSize: "200% 100%",
+  animation: "shimmer 1.5s infinite",
+}
+
 export function HeroSection() {
-  const popularGenres = ["Action", "Comedy", "Sci-Fi", "Drama", "Horror", "Animation"]; 
+  const popularGenres = ["Action", "Comedy", "Sci-Fi", "Drama", "Horror", "Animation"]; // Added more examples
   return (
       <motion.section
-          className="relative text-center py-12 md:py-16 lg:py-20 min-h-[60vh] md:min-h-[50vh] flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/10"
+          className="relative text-center py-12 md:py-16 lg:py-20 overflow-hidden min-h-[60vh] md:min-h-[50vh] flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/10"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -46,7 +50,7 @@ export function HeroSection() {
           <motion.div variants={itemVariants} className="relative mb-8 mx-auto">
             <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl h-24 md:h-28 lg:h-32 mx-auto">
               <Image
-                  src="/logo.png" 
+                  src="https://placehold.co/600x150.png"
                   alt="Movista stylized logo or movie reel"
                   fill
                   className="object-contain"
@@ -89,6 +93,7 @@ export function HeroSection() {
                     key={genre}
                     variants={itemVariants}
                   >
+                    {/* Updated Link to use genre_query */}
                     <Link href={`/search?genre_query=${encodeURIComponent(genre)}`} passHref>
                       <motion.button
                           className="px-3 py-1.5 text-xs bg-card hover:bg-accent/80 rounded-full text-foreground hover:text-accent-foreground transition-all duration-200 border border-border hover:border-accent"
