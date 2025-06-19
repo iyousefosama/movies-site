@@ -40,7 +40,7 @@ export function HeroSection() {
   const popularGenres = ["Action", "Comedy", "Sci-Fi", "Drama", "Horror", "Animation"];
   return (
       <motion.section
-          className="relative text-center py-12 md:py-16 lg:py-20 overflow-hidden min-h-[60vh] md:min-h-[50vh] flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/10"
+          className="relative text-center py-12 md:py-16 lg:py-20 min-h-[60vh] md:min-h-[50vh] flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/10"
           variants={containerVariants}
           initial="hidden"
           animate="visible"

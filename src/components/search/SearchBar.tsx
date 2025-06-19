@@ -54,7 +54,7 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
         setSuggestions(
           data.results
             .filter(item => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path) // Ensure poster_path exists
-            .slice(0, 7) // Limit to 7 suggestions to give more room for popular ones
+            .slice(0, 7) // Limit to 7 suggestions
         );
       } catch (error) {
         console.error("Failed to fetch suggestions:", error);
@@ -153,7 +153,7 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full left-0 right-0 w-full mt-2 bg-card border border-border rounded-lg shadow-xl z-[60] max-h-96 overflow-y-auto" // Increased z-index, ensured w-full
+                className="absolute top-full left-0 right-0 w-full mt-2 bg-card border border-border rounded-lg shadow-xl z-[60] max-h-96 overflow-y-auto"
             >
               {isLoadingSuggestions && (
                 <div className="p-4 flex items-center justify-center text-muted-foreground">
