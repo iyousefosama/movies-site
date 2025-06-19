@@ -1,3 +1,4 @@
+
 import type { 
   TMDBPaginatedResponse, 
   TMDBMovie, 
@@ -17,7 +18,7 @@ if (!API_KEY) {
   console.warn("TMDB API Key is missing. Please set NEXT_PUBLIC_TMDB_API_KEY environment variable.");
 }
 
-async function fetchTMDB<T>(endpoint: string, params: Record<string, string | number> = {}): Promise<T> {
+async function fetchTMDB<T>(endpoint: string, params: Record<string, string | number | boolean> = {}): Promise<T> {
   if (!API_KEY) {
     throw new Error("TMDB API Key is missing.");
   }
@@ -58,7 +59,7 @@ export const getDetails = async (
   mediaType: 'movie' | 'tv',
   id: string | number,
   language: string = 'en-US',
-  appendToResponse?: string
+  appendToResponse?: string // e.g., 'videos,images,credits,release_dates,content_ratings'
 ): Promise<TMDBMovieDetails | TMDBTVShowDetails> => {
   const params: Record<string, string | number> = { language };
   if (appendToResponse) {
@@ -77,7 +78,7 @@ export const searchMedia = async (
   includeAdult: boolean = false,
 ): Promise<TMDBPaginatedResponse<TMDBMediaItem>> => {
   // Using 'multi' search to find both movies and TV shows
-  return fetchTMDB<TMDBPaginatedResponse<TMDBMediaItem>>('search/multi', { query, page, language, include_adult: String(includeAdult) });
+  return fetchTMDB<TMDBPaginatedResponse<TMDBMediaItem>>('search/multi', { query, page, language, include_adult: includeAdult });
 };
 
 export const getGenres = async (mediaType: 'movie' | 'tv', language: string = 'en-US'): Promise<{ genres: TMDBGenre[] }> => {
@@ -92,16 +93,21 @@ export const getGenreMap = async (mediaType: 'movie' | 'tv', language: string = 
   if (mediaType === 'movie' && movieGenreMap) return movieGenreMap;
   if (mediaType === 'tv' && tvGenreMap) return tvGenreMap;
 
-  const { genres } = await getGenres(mediaType, language);
-  const map = genres.reduce((acc, genre) => {
-    acc[genre.id] = genre.name;
-    return acc;
-  }, {} as Record<number, string>);
+  try {
+    const { genres } = await getGenres(mediaType, language);
+    const map = genres.reduce((acc, genre) => {
+      acc[genre.id] = genre.name;
+      return acc;
+    }, {} as Record<number, string>);
 
-  if (mediaType === 'movie') movieGenreMap = map;
-  else tvGenreMap = map;
-  
-  return map;
+    if (mediaType === 'movie') movieGenreMap = map;
+    else tvGenreMap = map;
+    
+    return map;
+  } catch (error) {
+    console.error(`Failed to get genre map for ${mediaType}:`, error);
+    return {}; // Return empty map on error
+  }
 };
 
 export const getImageUrl = (path: string | null, size: string = 'w500'): string => {

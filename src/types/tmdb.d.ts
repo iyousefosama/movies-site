@@ -1,4 +1,5 @@
 
+
 export interface TMDBPaginatedResponse<T> {
   page: number;
   results: T[];
@@ -77,6 +78,28 @@ export interface TMDBSpokenLanguage {
   name: string;
 }
 
+// For Movie Details -> release_dates
+export interface TMDBReleaseDateInfo {
+  certification: string;
+  descriptors: string[];
+  iso_639_1: string; // language code, empty if it applies to all
+  note: string;
+  release_date: string; // YYYY-MM-DDTHH:mm:ss.sssZ
+  type: number; // 1: Premiere, 2: Theatrical (limited), 3: Theatrical, 4: Digital, 5: Physical, 6: TV
+}
+export interface TMDBCountryReleaseDates {
+  iso_3166_1: string; // country code
+  release_dates: TMDBReleaseDateInfo[];
+}
+
+// For TV Details -> content_ratings
+export interface TMDBContentRating {
+  descriptors: string[];
+  iso_3166_1: string; // country code
+  rating: string;
+}
+
+
 export interface TMDBMovieDetails extends TMDBMovie {
   belongs_to_collection: null | object;
   budget: number;
@@ -91,6 +114,7 @@ export interface TMDBMovieDetails extends TMDBMovie {
   status: string; // "Rumored", "Planned", "In Production", "Post Production", "Released", "Canceled"
   tagline: string | null;
   videos?: { results: TMDBVideo[] };
+  release_dates?: { results: TMDBCountryReleaseDates[] }; // Added for certification
 }
 
 export interface TMDBTVShowDetails extends TMDBTVShow {
@@ -114,6 +138,7 @@ export interface TMDBTVShowDetails extends TMDBTVShow {
   tagline: string | null;
   type?: string; // e.g. "Scripted"
   videos?: { results: TMDBVideo[] };
+  content_ratings?: { results: TMDBContentRating[] }; // Added for certification
 }
 
 export interface TMDBError {

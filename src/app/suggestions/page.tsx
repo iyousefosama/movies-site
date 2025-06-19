@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -7,7 +8,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { Label } from '@/components/ui/label'; // Keep Label if used directly, but FormLabel is preferred within FormField
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { suggestMovies, MovieSuggestionsInput, MovieSuggestionsOutput } from '@/ai/flows/movie-suggestions';
@@ -16,10 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Film, ThumbsUp, CheckCircle } from 'lucide-react';
 
 const suggestionFormSchema = z.object({
-  viewingHistory: z.string().min(1, "Please enter at least one movie you've watched."),
-  likedMovies: z.string().min(1, "Please enter at least one movie you liked."),
-  genrePreferences: z.string().min(1, "Please tell us your preferred genres."),
-  count: z.coerce.number().min(1).max(10).default(3),
+  viewingHistory: z.string().min(1, "Please enter at least one movie you've watched.").max(500, "Viewing history is too long."),
+  likedMovies: z.string().min(1, "Please enter at least one movie you liked.").max(500, "Liked movies list is too long."),
+  genrePreferences: z.string().min(1, "Please tell us your preferred genres.").max(200, "Genre preferences are too long."),
+  count: z.coerce.number().min(1, "Suggest at least 1 movie.").max(10, "Cannot suggest more than 10 movies.").default(3),
 });
 
 type SuggestionFormValues = z.infer<typeof suggestionFormSchema>;
@@ -55,13 +56,13 @@ export default function SuggestionsPage() {
         title: "Suggestions Ready!",
         description: "Here are some movies you might like.",
         variant: "default",
-        action: <CheckCircle className="text-green-500" />,
+        action: <CheckCircle className="text-green-500" />, // Using a standard checkmark from lucide
       });
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       toast({
-        title: "Error",
-        description: "Could not fetch suggestions. Please try again.",
+        title: "Error Fetching Suggestions",
+        description: (error instanceof Error && error.message) ? error.message : "Could not fetch suggestions. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -71,7 +72,7 @@ export default function SuggestionsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-2xl">
-      <Card className="shadow-2xl border-primary/30">
+      <Card className="shadow-2xl border-primary/30 bg-card">
         <CardHeader>
           <CardTitle className="text-3xl font-headline text-primary flex items-center">
             <ThumbsUp className="w-8 h-8 mr-3" /> AI Movie Suggestions
@@ -176,7 +177,7 @@ export default function SuggestionsPage() {
       )}
 
       {suggestions && suggestions.length > 0 && (
-        <Card className="mt-12 shadow-lg border-accent/30">
+        <Card className="mt-12 shadow-lg border-accent/30 bg-card">
           <CardHeader>
             <CardTitle className="text-2xl font-headline text-accent flex items-center">
               <Film className="w-7 h-7 mr-3" /> Here are your suggestions:
@@ -193,7 +194,7 @@ export default function SuggestionsPage() {
       )}
 
       {suggestions && suggestions.length === 0 && !isLoading && (
-         <Card className="mt-12 shadow-lg border-destructive/30">
+         <Card className="mt-12 shadow-lg border-destructive/30 bg-card">
           <CardHeader>
             <CardTitle className="text-2xl font-headline text-destructive flex items-center">
               <AlertTriangle className="w-7 h-7 mr-3" /> No Suggestions Found
