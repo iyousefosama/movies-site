@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { suggestMovies, type MovieSuggestionsInput, type MovieSuggestionsOutput } from "@/ai/flows/movie-suggestions"
+import { suggestMovies } from "@/ai/flows/movie-suggestions"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
 import { useToast } from "@/hooks/use-toast"
 import { AlertTriangle, Film, ThumbsUp, CheckCircle, Sparkles, Star, Heart, Settings } from "lucide-react"
@@ -19,23 +19,83 @@ import { useFavorites } from "@/context/FavoritesContext"
 import { Switch } from "@/components/ui/switch"
 import { motion } from "framer-motion"
 
+// Define types locally since we're not importing them directly
+type MovieSuggestionsInput = {
+  viewingHistory: string[]
+  moods: string[]
+  likedMovies: string[]
+  genrePreferences: string[]
+  count: number
+  moodText?: string
+  decade?: string
+  language?: string
+}
+
+type MovieSuggestion = {
+  title: string
+  year: number
+  genres: string[]
+  reason: string
+}
+
+type MovieSuggestionsOutput = {
+  suggestions: MovieSuggestion[]
+}
+
+const moodOptions = [
+
+  { value: "Uplifting", label: "Uplifting" },
+  { value: "Dark", label: "Dark" },
+  { value: "Funny", label: "Funny" },
+  { value: "Romantic", label: "Romantic" },
+  { value: "Suspenseful", label: "Suspenseful" },
+  { value: "Adventurous", label: "Adventurous" },
+  { value: "Thought-Provoking", label: "Thought-Provoking" },
+  { value: "Feel-Good", label: "Feel-Good" },
+  { value: "Epic", label: "Epic" },
+  { value: "Chill", label: "Chill" },
+]
+
+const decadeOptions = [
+
+  { value: "2020s", label: "2020s" },
+  { value: "2010s", label: "2010s" },
+  { value: "2000s", label: "2000s" },
+  { value: "1990s", label: "1990s" },
+  { value: "1980s", label: "1980s" },
+  { value: "1970s", label: "1970s" },
+  { value: "1960s", label: "1960s" },
+]
+
+const languageOptions = [
+
+  { value: "English", label: "English" },
+  { value: "Japanese", label: "Japanese" },
+  { value: "French", label: "French" },
+  { value: "Spanish", label: "Spanish" },
+  { value: "Korean", label: "Korean" },
+  { value: "German", label: "German" },
+  { value: "Hindi", label: "Hindi" },
+  { value: "Italian", label: "Italian" },
+  { value: "Chinese", label: "Chinese" },
+]
+
 const suggestionFormSchema = z.object({
-  viewingHistory: z
-    .array(z.string().min(1, "Movie title cannot be empty."))
-    .min(1, "Please add at least one movie you've watched.")
-    .max(10, "Please add no more than 10 watched movies."),
+  viewingHistory: z.array(z.string()).default([]),
+  moods: z.array(z.string()).default([]),
   likedMovies: z
     .array(z.string().min(1, "Movie title cannot be empty."))
+    .min(1, "Please select at least one movie you liked.")
     .max(10, "Please add no more than 10 liked movies."),
-  genrePreferences: z
-    .array(z.string())
-    .min(1, "Please select at least one genre.")
-    .max(10, "Please select no more than 10 genres."),
+  genrePreferences: z.array(z.string()).default([]),
   count: z.coerce
     .number()
     .min(1, "Suggest at least 1 movie.")
     .max(10, "Cannot suggest more than 10 movies.")
     .default(3),
+  moodText: z.string().optional(),
+  decade: z.string().optional(),
+  language: z.string().optional(),
 })
 
 type SuggestionFormValues = z.infer<typeof suggestionFormSchema>
@@ -66,7 +126,7 @@ const itemVariants = {
 
 export default function SuggestionsPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [suggestions, setSuggestions] = useState<string[] | null>(null)
+  const [suggestions, setSuggestions] = useState<MovieSuggestion[] | null>(null)
   const [genreOptions, setGenreOptions] = useState<MultiSelectOption[]>([])
   const { toast } = useToast()
   const { favorites } = useFavorites()
@@ -82,9 +142,12 @@ export default function SuggestionsPage() {
         Object.entries(movieGenresMap).forEach(([id, name]) => (combinedGenres[name] = name))
         Object.entries(tvGenresMap).forEach(([id, name]) => (combinedGenres[name] = name))
 
-        const options = Object.keys(combinedGenres)
-          .map((name) => ({ value: name, label: name }))
-          .sort((a, b) => a.label.localeCompare(b.label))
+        const options = [
+          { value: "", label: "Any" },
+          ...Object.keys(combinedGenres)
+            .map((name) => ({ value: name, label: name }))
+            .sort((a, b) => a.label.localeCompare(b.label)),
+        ]
 
         setGenreOptions(options)
       } catch (error) {
@@ -103,9 +166,13 @@ export default function SuggestionsPage() {
     resolver: zodResolver(suggestionFormSchema),
     defaultValues: {
       viewingHistory: [],
+      moods: [],
       likedMovies: [],
       genrePreferences: [],
       count: 3,
+      moodText: "",
+      decade: "",
+      language: "",
     },
   })
 
@@ -120,10 +187,10 @@ export default function SuggestionsPage() {
       finalLikedMovies = [...new Set([...finalLikedMovies, ...favoriteTitles])]
     }
 
-    if (finalLikedMovies.length === 0) {
+    if (finalLikedMovies.length === 0 && data.moods.length === 0 && !data.moodText) {
       form.setError("likedMovies", {
         type: "manual",
-        message: "Please add at least one liked movie or ensure 'Include Favorites' is on and you have favorites.",
+        message: "Please select at least one movie you liked, at least one mood, or describe your mood.",
       })
       setIsLoading(false)
       return
@@ -131,12 +198,17 @@ export default function SuggestionsPage() {
 
     try {
       const input: MovieSuggestionsInput = {
-        viewingHistory: data.viewingHistory,
+        viewingHistory: data.viewingHistory || [],
+        moods: data.moods,
         likedMovies: finalLikedMovies,
         genrePreferences: data.genrePreferences,
         count: data.count,
+        moodText: data.moodText,
+        decade: data.decade,
+        language: data.language,
       }
-      const result: MovieSuggestionsOutput = await suggestMovies(input)
+
+      const result = await suggestMovies(input)
       setSuggestions(result.suggestions)
       toast({
         title: "Suggestions Ready!",
@@ -148,8 +220,7 @@ export default function SuggestionsPage() {
       console.error("Error fetching suggestions:", error)
       toast({
         title: "Error Fetching Suggestions",
-        description:
-          error instanceof Error && error.message ? error.message : "Could not fetch suggestions. Please try again.",
+        description: error instanceof Error ? error.message : "Could not fetch suggestions. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -172,36 +243,10 @@ export default function SuggestionsPage() {
               <Sparkles className="w-8 h-8 text-amber-400" />
             </div>
           </div>
-          <h1
-            className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight"
-            style={{
-              background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e1 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            AI Movie{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Suggestions
-            </span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight bg-gradient-to-r from-amber-400 to-red-500 bg-clip-text text-transparent">
+            AI Movie Suggestions
           </h1>
-          <p
-            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto"
-            style={{
-              background: "linear-gradient(135deg, #64748b 0%, #475569 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
             Tell us about your taste, and our AI will suggest movies you'll love! You can also include your favorited
             movies and TV shows.
           </p>
@@ -223,28 +268,92 @@ export default function SuggestionsPage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <CardContent className="space-y-6 sm:space-y-8">
-                  {/* Viewing History */}
+                  {/* Free-text Mood Box */}
                   <FormField
                     control={form.control}
-                    name="viewingHistory"
+                    name="moodText"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-base sm:text-lg font-semibold text-foreground flex items-center">
                           <Film className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-amber-400" />
-                          Movies You've Watched
+                          What kind of movie are you in the mood for?
                         </FormLabel>
                         <FormControl>
-                          <MediaMultiSelect
-                            selected={field.value}
-                            onChange={field.onChange}
-                            placeholder="Add movies you've watched..."
-                            triggerClassName="bg-input/50 border-border hover:border-amber-500/50 focus:border-amber-500 transition-colors min-h-[44px]"
+                          <Input
+                            type="text"
+                            placeholder="I want something like Inception but funnier, or a sad romance from the 90s"
+                            className="bg-input/50 border-border hover:border-amber-500/50 focus:border-amber-500 transition-colors h-11"
+                            {...field}
                           />
                         </FormControl>
+                        <FormDescription className="text-xs mt-1 text-muted-foreground">
+                          Describe your mood, a movie vibe, or a specific request. (Optional)
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  {/* Extra Options */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="decade"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-foreground">Decade</FormLabel>
+                          <FormControl>
+                            <MultiSelect
+                              options={decadeOptions}
+                              selected={field.value ? [field.value] : []}
+                              onChange={(vals) => field.onChange(vals.length > 0 ? vals[vals.length - 1] : "")}
+                              placeholder="Select decade..."
+                              triggerClassName="bg-input/50 border-border min-h-[44px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="moods"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-foreground">Mood</FormLabel>
+                          <FormControl>
+                            <MultiSelect
+                              options={moodOptions}
+                              selected={field.value.filter((mood) => mood !== "")}
+                              onChange={(vals) => field.onChange(vals.filter((val) => val !== ""))}
+                              placeholder="Select mood..."
+                              triggerClassName="bg-input/50 border-border min-h-[44px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="language"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-foreground">Language</FormLabel>
+                          <FormControl>
+                            <MultiSelect
+                              options={languageOptions}
+                              selected={field.value ? [field.value] : []}
+                              onChange={(vals) => field.onChange(vals.length > 0 ? vals[vals.length - 1] : "")}
+                              placeholder="Select language..."
+                              triggerClassName="bg-input/50 border-border min-h-[44px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   {/* Liked Movies */}
                   <FormField
@@ -255,7 +364,7 @@ export default function SuggestionsPage() {
                         <FormLabel className="text-base sm:text-lg font-semibold text-foreground flex flex-col items-start sm:flex-row sm:items-center sm:space-x-6">
                           <span className="flex items-center">
                             <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-red-400" />
-                            Movies You Liked{" "}
+                            Movies You Liked
                           </span>
                           <span className="text-sm font-normal text-muted-foreground">
                             (optional if using favorites)
@@ -269,40 +378,38 @@ export default function SuggestionsPage() {
                             triggerClassName="bg-input/50 border-border hover:border-red-500/50 focus:border-red-500 transition-colors min-h-[44px]"
                           />
                         </FormControl>
+                        <motion.div
+                          variants={itemVariants}
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border border-amber-500/20 p-4 sm:p-6 shadow-sm bg-gradient-to-r from-amber-500/5 to-red-500/5 backdrop-blur-sm mt-3"
+                        >
+                          <div className="space-y-1 mb-4 sm:mb-0">
+                            <div className="flex items-center">
+                              <Heart className="w-5 h-5 mr-2 text-red-400" />
+                              <FormLabel className="text-base sm:text-lg font-semibold text-foreground">
+                                Include Your Favorites?
+                              </FormLabel>
+                            </div>
+                            <FormDescription className="text-sm text-muted-foreground">
+                              Allow AI to consider movies & TV shows you've favorited.
+                              {favorites.length > 0 && (
+                                <span className="block mt-1 text-amber-400 font-medium">
+                                  You have {favorites.length} favorite{favorites.length !== 1 ? "s" : ""} saved
+                                </span>
+                              )}
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={includeFavoritesInAI}
+                              onCheckedChange={setIncludeFavoritesInAI}
+                              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-amber-500 data-[state=checked]:to-red-500"
+                            />
+                          </FormControl>
+                        </motion.div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  {/* Include Favorites Toggle */}
-                  <motion.div
-                    variants={itemVariants}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border border-amber-500/20 p-4 sm:p-6 shadow-sm bg-gradient-to-r from-amber-500/5 to-red-500/5 backdrop-blur-sm"
-                  >
-                    <div className="space-y-1 mb-4 sm:mb-0">
-                      <div className="flex items-center">
-                        <Heart className="w-5 h-5 mr-2 text-red-400" />
-                        <FormLabel className="text-base sm:text-lg font-semibold text-foreground">
-                          Include Your Favorites?
-                        </FormLabel>
-                      </div>
-                      <FormDescription className="text-sm text-muted-foreground">
-                        Allow AI to consider movies & TV shows you've favorited.
-                        {favorites.length > 0 && (
-                          <span className="block mt-1 text-amber-400 font-medium">
-                            You have {favorites.length} favorite{favorites.length !== 1 ? "s" : ""} saved
-                          </span>
-                        )}
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={includeFavoritesInAI}
-                        onCheckedChange={setIncludeFavoritesInAI}
-                        className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-amber-500 data-[state=checked]:to-red-500"
-                      />
-                    </FormControl>
-                  </motion.div>
 
                   {/* Genre Preferences */}
                   <FormField
@@ -317,8 +424,8 @@ export default function SuggestionsPage() {
                         <FormControl>
                           <MultiSelect
                             options={genreOptions}
-                            selected={field.value}
-                            onChange={field.onChange}
+                            selected={field.value.filter((genre) => genre !== "")}
+                            onChange={(vals) => field.onChange(vals.filter((val) => val !== ""))}
                             placeholder="Select your favorite genres..."
                             triggerClassName="bg-input/50 border-border hover:border-purple-500/50 focus:border-purple-500 transition-colors min-h-[44px]"
                           />
@@ -359,9 +466,6 @@ export default function SuggestionsPage() {
                     type="submit"
                     disabled={isLoading || genreOptions.length === 0}
                     className="w-full text-base sm:text-lg py-3 sm:py-4 bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-600 hover:to-red-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                    style={{
-                      boxShadow: "0 8px 32px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
-                    }}
                   >
                     {isLoading ? (
                       <>
@@ -411,12 +515,20 @@ export default function SuggestionsPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center p-3 sm:p-4 rounded-lg bg-muted/30 border border-border/50 hover:border-green-500/30 transition-colors"
+                      className="flex flex-col sm:flex-row items-start sm:items-center p-3 sm:p-4 rounded-lg bg-muted/30 border border-border/50 hover:border-green-500/30 transition-colors"
                     >
                       <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-sm sm:text-base mr-3 sm:mr-4">
                         {index + 1}
                       </div>
-                      <p className="text-foreground font-medium text-sm sm:text-base leading-relaxed">{movie}</p>
+                      <div className="flex-1">
+                        <div className="font-semibold text-foreground text-base sm:text-lg">
+                          {movie.title} <span className="text-muted-foreground font-normal">({movie.year})</span>
+                        </div>
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-1">
+                          {movie.genres && movie.genres.length > 0 && <span>Genres: {movie.genres.join(", ")}</span>}
+                        </div>
+                        <div className="text-sm sm:text-base text-foreground/90">{movie.reason}</div>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
