@@ -180,6 +180,10 @@ export function MediaMultiSelect({
                   onSelect={() => {
                     handleSelect(option.value);
                   }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   <Check

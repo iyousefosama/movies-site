@@ -12,7 +12,7 @@ import { Star, CalendarDays, Globe, Languages, DollarSign, Landmark, Users, Tag 
 import { Suspense } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ClientMediaArea } from '@/components/movies/ClientMediaArea';
-import { FavoriteButton } from '@/components/movies/FavoriteButton'; // Added
+import { FavoriteButton } from '@/components/movies/FavoriteButton';
 
 interface MovieDetailPageProps {
   params: { id: string };
@@ -89,7 +89,7 @@ async function MovieDetailsContent({ movieId }: { movieId: string }) {
               <div className="flex-grow">
                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary flex items-center gap-3">
                   {movie.title}
-                  <FavoriteButton item={movie} size="lg" className="text-primary/70 hover:text-primary" />
+                  <FavoriteButton item={{...movie, media_type: 'movie'}} size="lg" className="text-primary/70 hover:text-primary" />
                 </h1>
               </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-lg">

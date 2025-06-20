@@ -104,8 +104,12 @@ export function MultiSelect({
                   value={option.value}
                   onSelect={() => {
                     handleSelect(option.value);
-                    // setOpen(true); // Keep open for multi-selection
                   }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  className="cursor-pointer"
                 >
                   <Check
                     className={cn(

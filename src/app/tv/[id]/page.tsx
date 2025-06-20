@@ -12,7 +12,7 @@ import { Star, CalendarDays, TvIcon, Languages, Users, Landmark, Tag as TagIcon,
 import { Suspense } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ClientMediaArea } from '@/components/movies/ClientMediaArea';
-import { FavoriteButton } from '@/components/movies/FavoriteButton'; // Added
+import { FavoriteButton } from '@/components/movies/FavoriteButton';
 
 
 interface TVShowDetailPageProps {
@@ -76,7 +76,7 @@ async function TVShowDetailsContent({ tvShowId }: { tvShowId: string }) {
               <div className="flex-grow">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary flex items-center gap-3">
                   {tvShow.name}
-                  <FavoriteButton item={tvShow} size="lg" className="text-primary/70 hover:text-primary" />
+                  <FavoriteButton item={{...tvShow, media_type: 'tv'}} size="lg" className="text-primary/70 hover:text-primary" />
                 </h1>
               </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-lg">
