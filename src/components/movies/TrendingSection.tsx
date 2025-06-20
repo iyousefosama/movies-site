@@ -19,7 +19,7 @@ export function TrendingSection({ title, items, mediaType, genres, viewAllLink }
 
   return (
     <section className="mb-12" id='trending'>
-      <div className="flex justify-center items-center mb-8 mt-16">
+      <div className="flex justify-center items-center mb-8 my-4">
         <h2 className="text-3xl font-headline font-semibold text-foreground">{title}</h2>
         {viewAllLink && (
            <Link href={viewAllLink} className="text-accent hover:text-accent/80 transition-colors flex items-center text-sm">

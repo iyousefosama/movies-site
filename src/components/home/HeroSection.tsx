@@ -1,4 +1,3 @@
-
 "use client"
 import { SearchBar } from "@/components/search/SearchBar"
 import { motion } from "framer-motion"
@@ -34,61 +33,27 @@ export function HeroSection() {
 
   return (
     <motion.section
-      className="relative text-center py-8 sm:py-12 lg:py-16 min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/5"
+      className="relative text-center py-8 sm:py-12 lg:py-16 min-h-[65vh] w-full flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-card/5"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
       <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
-{/*         <motion.div variants={itemVariants} className="relative mb-8 mx-auto">
-          <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl h-24 md:h-28 lg:h-32 mx-auto">
-            <Image
-                src="/logo.png" 
-                alt="Movista stylized logo or movie reel"
-                fill
-                className="object-contain"
-                priority
-                data-ai-hint="logo app logo"
-            />
-          </div>
-        </motion.div> */}
-
         <motion.div variants={itemVariants} className="mb-8 sm:mb-12">
           <motion.h1
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-6 sm:mb-8 leading-[0.85] sm:leading-[0.9] tracking-tight px-2"
-            style={{
-              background: "linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--foreground)/0.8) 30%, hsl(var(--foreground)/0.7) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              textShadow: "0 0 40px hsla(var(--foreground-hsl)/0.1)",
-            }}
+            variants={itemVariants}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-6 sm:mb-8 leading-[0.85] sm:leading-[0.9] tracking-tight px-2 text-transparent bg-clip-text bg-gradient-to-br from-foreground via-foreground/80 to-foreground/70"
           >
             Discover{" "}
-            <span
-              className="relative inline-block"
-              style={{
-                background: "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 50%, hsl(var(--primary)/0.7) 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
+            <span className="text-gradient-gold">
               Cinema
             </span>
             <br />
-            <span
-              className="relative inline-block"
-              style={{
-                background: "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent)/0.8) 50%, hsl(var(--accent)/0.7) 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
+            <span className="bg-gradient-to-br from-accent via-accent/80 to-accent/70 bg-clip-text text-transparent">
               Magic
             </span>
           </motion.h1>
+
           <motion.p
             className="mt-4 sm:mt-6 text-lg sm:text-xl md:text-2xl font-medium max-w-4xl mx-auto leading-relaxed px-4"
             style={{
@@ -144,10 +109,16 @@ export function HeroSection() {
         </motion.div>
       </div>
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Background Glow Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[15%] sm:top-[20%] left-1/2 transform -translate-x-1/2 w-[400px] sm:w-[600px] lg:w-[800px] h-[400px] sm:h-[600px] lg:h-[800px] bg-gradient-to-r from-primary/10 via-accent/5 to-purple-500/10 rounded-full blur-[100px] sm:blur-[150px] lg:blur-[200px] opacity-50" />
         <div className="hidden sm:block absolute top-[10%] left-[10%] sm:left-[20%] w-[200px] sm:w-[300px] lg:w-[400px] h-[200px] sm:h-[300px] lg:h-[400px] bg-primary/5 rounded-full blur-[80px] sm:blur-[100px] lg:blur-[120px] opacity-40" />
         <div className="hidden sm:block absolute bottom-[10%] right-[10%] sm:right-[20%] w-[150px] sm:w-[200px] lg:w-[300px] h-[150px] sm:h-[200px] lg:h-[300px] bg-accent/5 rounded-full blur-[60px] sm:blur-[80px] lg:blur-[100px] opacity-30" />
+      </div>
+
+      {/* Fading Bottom Overlay */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute bottom-0 left-0 right-0 h-40 sm:h-64 bg-gradient-to-b from-transparent to-background" />
       </div>
 
       <style jsx>{`

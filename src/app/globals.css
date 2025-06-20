@@ -79,8 +79,8 @@ body {
     --muted: 220 35% 6%;
     --muted-foreground: 220 15% 65%;
 
-    --accent: 345 85% 62%; /* Brighter red accent */
-    --accent-foreground: 45 15% 95%;
+    --accent: 278 100% 65%; /* Royal Neon Purple */
+    --accent-foreground: 45 15% 95%; /* Keep text warm and readable */
 
     --destructive: 0 100% 55%;
     --destructive-foreground: 0 0% 98%;
@@ -115,7 +115,11 @@ body {
     @apply bg-background text-foreground;
     scroll-behavior: smooth;
     /* Add subtle texture for cinematic feel */
-    background-image: radial-gradient(circle at 1px 1px, rgba(251, 191, 36, 0.03) 1px, transparent 0);
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(251, 191, 36, 0.03) 1px,
+      transparent 0
+    );
     background-size: 20px 20px;
   }
 
@@ -132,31 +136,41 @@ body {
   }
 
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.6), hsl(var(--accent) / 0.6));
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary) / 0.6),
+      hsl(var(--accent) / 0.6)
+    );
     border-radius: 10px;
     border: 1px solid hsl(var(--border));
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--accent) / 0.8));
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary) / 0.8),
+      hsl(var(--accent) / 0.8)
+    );
   }
 
   /* Add cinematic glow effects for interactive elements */
   .btn-cinematic {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.1), inset 0 1px 0 hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.1),
+      inset 0 1px 0 hsl(var(--primary) / 0.2);
     transition: all 0.3s ease;
   }
 
   .btn-cinematic:hover {
-    box-shadow: 0 0 30px hsl(var(--primary) / 0.2), 0 0 60px hsl(var(--primary) / 0.1), inset 0 1px 0
-      hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.2),
+      0 0 60px hsl(var(--primary) / 0.1),
+      inset 0 1px 0 hsl(var(--primary) / 0.3);
   }
 
   /* Enhance focus states with golden glow */
   .focus-cinematic:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary) / 0.5), 0 0 20px
-      hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.3);
   }
 
   /* Add shimmer animation for loading states */
@@ -170,7 +184,12 @@ body {
   }
 
   .shimmer {
-    background: linear-gradient(110deg, hsl(var(--muted)) 8%, hsl(var(--primary) / 0.1) 18%, hsl(var(--muted)) 33%);
+    background: linear-gradient(
+      110deg,
+      hsl(var(--muted)) 8%,
+      hsl(var(--primary) / 0.1) 18%,
+      hsl(var(--muted)) 33%
+    );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }

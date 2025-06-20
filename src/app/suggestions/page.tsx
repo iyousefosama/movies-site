@@ -237,7 +237,7 @@ export default function SuggestionsPage() {
                           <MediaMultiSelect
                             selected={field.value}
                             onChange={field.onChange}
-                            placeholder="Search and add movies you've watched..."
+                            placeholder="Add movies you've watched..."
                             triggerClassName="bg-input/50 border-border hover:border-amber-500/50 focus:border-amber-500 transition-colors min-h-[44px]"
                           />
                         </FormControl>
@@ -252,10 +252,12 @@ export default function SuggestionsPage() {
                     name="likedMovies"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base sm:text-lg font-semibold text-foreground flex items-center">
-                          <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-red-400" />
-                          Movies You Liked{" "}
-                          <span className="text-sm font-normal text-muted-foreground ml-2">
+                        <FormLabel className="text-base sm:text-lg font-semibold text-foreground flex flex-col items-start sm:flex-row sm:items-center sm:space-x-6">
+                          <span className="flex items-center">
+                            <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-red-400" />
+                            Movies You Liked{" "}
+                          </span>
+                          <span className="text-sm font-normal text-muted-foreground">
                             (optional if using favorites)
                           </span>
                         </FormLabel>
@@ -263,7 +265,7 @@ export default function SuggestionsPage() {
                           <MediaMultiSelect
                             selected={field.value}
                             onChange={field.onChange}
-                            placeholder="Search and add movies you liked..."
+                            placeholder="Add movies you liked..."
                             triggerClassName="bg-input/50 border-border hover:border-red-500/50 focus:border-red-500 transition-colors min-h-[44px]"
                           />
                         </FormControl>
