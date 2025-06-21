@@ -38,9 +38,7 @@ const MovieSuggestionsOutputSchema = z.object({
 export type MovieSuggestionsOutput = z.infer<typeof MovieSuggestionsOutputSchema>;
 
 export async function suggestMovies(input: MovieSuggestionsInput): Promise<MovieSuggestionsOutput> {
-  console.log('👉 Input to suggestMovies:', JSON.stringify(input, null, 2));
   const result = await suggestMoviesFlow(input);
-  console.log('✅ Suggestions Returned:', result.suggestions);
   return result;
 }
 

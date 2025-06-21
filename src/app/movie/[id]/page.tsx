@@ -1,5 +1,3 @@
-
-
 import { getDetails, getImageUrl } from '@/lib/tmdb';
 import type { TMDBMovieDetails } from '@/types/tmdb';
 import Image from 'next/image';
@@ -15,12 +13,12 @@ import { ClientMediaArea } from '@/components/movies/ClientMediaArea';
 import { FavoriteButton } from '@/components/movies/FavoriteButton';
 
 interface MovieDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: MovieDetailPageProps) {
   try {
-    const movie = await getDetails('movie', params.id, 'en-US', 'videos,release_dates') as TMDBMovieDetails;
+    const movie = await getDetails('movie', (await params).id, 'en-US', 'videos,release_dates') as TMDBMovieDetails;
     return {
       title: `${movie.title} | Movista`,
       description: movie.overview,
@@ -152,7 +150,7 @@ async function MovieDetailsContent({ movieId }: { movieId: string }) {
               <DetailItem label="Release Date" value={movie.release_date ? new Date(movie.release_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'} icon={CalendarDays} />
               <DetailItem label="Production Countries" value={movie.production_countries.map(c => c.name).join(', ')} icon={Landmark}/>
               <DetailItem label="Status" value={movie.status} icon={Users}/>
-              <DetailItem label="Original Language" value={movie.original_language.toUpperCase()} icon={Languages}/>
+              <DetailItem label="Original Language" value={movie.original_language?.toUpperCase()} icon={Languages}/>
               <DetailItem label="Spoken Languages" value={movie.spoken_languages.map(lang => lang.english_name).join(', ')} icon={Globe}/>
               <DetailItem label="Budget" value={formatCurrency(movie.budget)} icon={DollarSign}/>
               <DetailItem label="Revenue" value={formatCurrency(movie.revenue)} icon={DollarSign}/>
@@ -187,10 +185,10 @@ async function MovieDetailsContent({ movieId }: { movieId: string }) {
   );
 }
 
-export default function MovieDetailPage({ params }: MovieDetailPageProps) {
+export default async function MovieDetailPage({ params }: MovieDetailPageProps) {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><LoadingSpinner size={64} /></div>}>
-      <MovieDetailsContent movieId={params.id} />
+      <MovieDetailsContent movieId={(await params).id} />
     </Suspense>
   );
 }

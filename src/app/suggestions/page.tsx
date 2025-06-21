@@ -89,8 +89,8 @@ const suggestionFormSchema = z.object({
   count: z.coerce
     .number()
     .min(1, "Suggest at least 1 movie.")
-    .max(10, "Cannot suggest more than 10 movies.")
-    .default(3),
+    .max(20, "Cannot suggest more than 20 movies.")
+    .default(5),
   moodText: z.string().optional(),
   decade: z.string().optional(),
   language: z.string().optional(),
@@ -166,7 +166,7 @@ export default function SuggestionsPage() {
       moods: [],
       likedMovies: [],
       genrePreferences: [],
-      count: 3,
+      count: 5,
       moodText: "",
       decade: "",
       language: "",
@@ -239,7 +239,7 @@ export default function SuggestionsPage() {
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight text-transparent bg-clip-text pb-4 bg-gradient-to-r from-primary to-accent">
             AI Movie Suggestions
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -448,7 +448,7 @@ export default function SuggestionsPage() {
                           <Input
                             type="number"
                             min="1"
-                            max="10"
+                            max="20"
                             className="bg-input/50 border-border hover:border-primary/50 focus:border-primary transition-colors h-11 w-full sm:w-1/2"
                             {...field}
                           />
