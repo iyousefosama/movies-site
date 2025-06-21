@@ -3,17 +3,19 @@ import { PopularGrid } from '@/components/movies/PopularGrid';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { Film, Popcorn, LucideIcon } from 'lucide-react';
 
 interface PopularPageProps {
-  params: {
+  params: Promise<{
     mediaType: string;
     page: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: PopularPageProps) {
-  const mediaType = params.mediaType === 'movie' ? 'Movies' : params.mediaType === 'tv' ? 'TV Shows' : '';
-  const pageNumber = parseInt(params.page, 10);
+  const resolvedParams = await params;
+  const mediaType = resolvedParams.mediaType === 'movie' ? 'Movies' : resolvedParams.mediaType === 'tv' ? 'TV Shows' : '';
+  const pageNumber = parseInt(resolvedParams.page, 10);
   if (!mediaType || isNaN(pageNumber)) {
     return { title: 'Popular Content - Movista' };
   }
@@ -24,8 +26,9 @@ export async function generateMetadata({ params }: PopularPageProps) {
 }
 
 async function PopularPageContent({ params }: PopularPageProps) {
-  const mediaType = params.mediaType;
-  const page = parseInt(params.page, 10);
+  const resolvedParams = await params;
+  const { mediaType, page: pageStr } = resolvedParams;
+  const page = parseInt(pageStr, 10);
 
   if ((mediaType !== 'movie' && mediaType !== 'tv') || isNaN(page) || page < 1) {
     notFound();
@@ -44,6 +47,7 @@ async function PopularPageContent({ params }: PopularPageProps) {
   }
   
   const title = mediaType === 'movie' ? "Popular Movies" : "Popular TV Shows";
+  const Icon = mediaType === 'movie' ? Popcorn : Film;
 
   return (
     <PopularGrid
@@ -52,6 +56,7 @@ async function PopularPageContent({ params }: PopularPageProps) {
       mediaType={mediaType as 'movie' | 'tv'}
       genres={genres}
       currentPage={page}
+      Icon={Icon}
       totalPages={popularData.total_pages}
       basePath={`/popular/${mediaType}/`}
     />

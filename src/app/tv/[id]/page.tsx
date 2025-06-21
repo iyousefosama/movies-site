@@ -16,12 +16,12 @@ import { FavoriteButton } from '@/components/movies/FavoriteButton';
 
 
 interface TVShowDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: TVShowDetailPageProps) {
   try {
-    const tvShow = await getDetails('tv', params.id, 'en-US', 'videos,content_ratings') as TMDBTVShowDetails;
+    const tvShow = await getDetails('tv', (await params).id, 'en-US', 'videos,content_ratings') as TMDBTVShowDetails;
     return {
       title: `${tvShow.name} | Movista`,
       description: tvShow.overview,
@@ -196,10 +196,10 @@ async function TVShowDetailsContent({ tvShowId }: { tvShowId: string }) {
   );
 }
 
-export default function TVShowDetailPage({ params }: TVShowDetailPageProps) {
+export default async function TVShowDetailPage({ params }: TVShowDetailPageProps) {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><LoadingSpinner size={64} /></div>}>
-      <TVShowDetailsContent tvShowId={params.id} />
+      <TVShowDetailsContent tvShowId={(await params).id} />
     </Suspense>
   );
 }

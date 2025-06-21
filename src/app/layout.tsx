@@ -21,15 +21,15 @@ export const metadata: Metadata = {
   keywords: [
     'movies', 'tv shows', 'recommendations', 'AI', 'Next.js', 'TMDB', 'movie app', 'movie discovery'
   ],
-  metadataBase: new URL('https://your-domain.com'),
+  metadataBase: new URL('https://movista.vercel.app/'),
   openGraph: {
     title: 'Movista - Discover Your Next Favorite Movie',
     description: 'A modern, sleek movie discovery website. Get AI-powered movie and TV show recommendations.',
-    url: 'https://your-domain.com',
+    url: 'https://movista.vercel.app/',
     siteName: 'Movista',
     images: [
       {
-        url: '/logo.png', // Place a suitable image in /public
+        url: '/movista.jpg', // Place a suitable image in /public
         width: 1200,
         height: 630,
         alt: 'Movista - Discover Your Next Favorite Movie',
@@ -42,8 +42,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Movista - Discover Your Next Favorite Movie',
     description: 'A modern, sleek movie discovery website. Get AI-powered movie and TV show recommendations.',
-    images: ['/logo.png'],
-    creator: '@your_twitter', // Optional
+    images: ['/movista.jpg'],
   },
   icons: {
     icon: '/favicon.ico',
