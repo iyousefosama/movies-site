@@ -1,14 +1,12 @@
-// "use client"; // This is now a server component
-import type { Metadata, Viewport } from 'next'; // Keep for potential future use if client component structure changes
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-// import { Header } from '@/components/layout/Header'; // Moved to ClientLayout
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from './providers';
-import { FavoritesProvider } from '@/context/FavoritesContext'; // Added import
-// import { usePathname } from 'next/navigation'; // Moved to ClientLayout
+import { FavoritesProvider } from '@/context/FavoritesContext';
 import { ClientLayout } from '@/components/layout/ClientLayout';
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -47,7 +45,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
-    apple: '/apple-touch-icon.png', // Optional
+    apple: '/apple-touch-icon.png',
   },
 };
 
@@ -56,16 +54,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const pathname = usePathname(); // Logic moved to ClientLayout
-  // const isHomePage = pathname === '/'; // Logic moved to ClientLayout
 
   return (
     <html lang="en" className="dark">
-      <head>
-        {/* Metadata is now handled by Next.js metadata API */}
-      </head>
       <body className={`${inter.variable} font-body antialiased flex flex-col min-h-screen bg-background text-foreground`}>
         <Providers>
+          <Analytics />
           <FavoritesProvider>
             <ClientLayout>{children}</ClientLayout>
             <Footer />
