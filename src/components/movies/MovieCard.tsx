@@ -80,7 +80,7 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
           <div className="relative aspect-[2/3] w-full">
             {rank && (
               <div 
-                className="absolute -left-8 -bottom-1 z-10 text-[5rem] md:text-[6rem] lg:text-[7rem] font-extrabold text-white/10 group-hover:text-primary/20 transition-colors duration-300 select-none"
+                className="absolute -left-8 -bottom-1 z-5 group-hover:z-10 text-[5rem] md:text-[6rem] lg:text-[7rem] font-extrabold text-white/10 group-hover:text-primary/20 transition-colors duration-300 select-none"
                 style={{ WebkitTextStroke: `1px hsl(var(--border))`, paintOrder: 'stroke fill' }}
               >
                 {rank}
@@ -111,7 +111,7 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
              </AnimatePresence>
           </div>
         </Link>
-        <div className="absolute top-1.5 right-1.5 z-20">
+        <div className="absolute top-1.5 right-1.5 z-5">
           <FavoriteButton item={itemForFavoriteButton} size="sm" className="bg-black/30 hover:bg-primary/50" />
         </div>
       </motion.div>
@@ -195,7 +195,7 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
           </AnimatePresence>
         </div>
       </Link>
-      <div className="absolute top-2 right-2 z-20"> {/* Increased z-index slightly just in case, though 10 was likely fine */}
+      <div className="absolute top-2 right-2 z-5">
          <FavoriteButton item={itemForFavoriteButton} size="sm" className="bg-black/30 hover:bg-primary/50" />
       </div>
     </motion.div>
