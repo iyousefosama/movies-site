@@ -1,8 +1,6 @@
-
 "use client";
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { VideoPlayer } from '@/components/movies/VideoPlayer';
 import { getImageUrl } from '@/lib/tmdb';
@@ -28,12 +26,13 @@ export function ClientMediaArea({ trailerKey, backdropPath, title }: ClientMedia
   if (backdropPath) {
     return (
       <div className="relative aspect-video rounded-lg overflow-hidden shadow-xl group">
-        <Image
+        <img
           src={getImageUrl(backdropPath, 'w1280')}
           alt={`${title} backdrop`}
-          fill
-          className="object-cover"
+          className="object-cover w-full h-full absolute inset-0"
+          loading="lazy"
           data-ai-hint="movie scene tv series scene"
+          style={{ borderRadius: 'inherit' }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         {trailerKey && (

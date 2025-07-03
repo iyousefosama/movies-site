@@ -1,8 +1,5 @@
-
-
 import { getDetails, getImageUrl } from '@/lib/tmdb';
 import type { TMDBTVShowDetails } from '@/types/tmdb';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -95,13 +92,13 @@ async function TVShowDetailsContent({ tvShowId }: { tvShowId: string }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-8 p-4 md:p-8 pt-0">
             <div className="md:col-span-1 mb-6 md:mb-0">
               <div className="aspect-[2/3] relative rounded-lg overflow-hidden shadow-xl mx-auto md:mx-0 max-w-xs md:max-w-none">
-                <Image
+                <img
                   src={getImageUrl(tvShow.poster_path, 'w500')}
                   alt={`${tvShow.name} poster`}
-                  fill
-                  className="object-cover"
+                  className="object-cover w-full h-full"
+                  loading="lazy"
                   data-ai-hint="tv series poster"
-                  priority
+                  style={{ borderRadius: 'inherit' }}
                 />
               </div>
             </div>
@@ -154,12 +151,13 @@ async function TVShowDetailsContent({ tvShowId }: { tvShowId: string }) {
                   {tvShow.networks.filter(n => n.logo_path).map(network => (
                     <div key={network.id} className="bg-background/50 p-3 rounded-lg shadow flex flex-col items-center text-center w-32 h-28 justify-between" title={network.name}>
                       <div className="relative w-24 h-12">
-                        <Image 
+                        <img 
                           src={getImageUrl(network.logo_path, 'w200')} 
                           alt={`${network.name} logo`} 
-                          fill
-                          className="object-contain filter dark:invert"
+                          className="object-contain w-full h-full filter dark:invert"
+                          loading="lazy"
                           data-ai-hint="network logo"
+                          style={{ borderRadius: 'inherit' }}
                         />
                       </div>
                       <p className="text-xs text-muted-foreground truncate w-full mt-2">{network.name}</p>
@@ -175,13 +173,14 @@ async function TVShowDetailsContent({ tvShowId }: { tvShowId: string }) {
                   {tvShow.production_companies.filter(pc => pc.logo_path).map(company => (
                     <div key={company.id} className="bg-background/50 p-3 rounded-lg shadow flex flex-col items-center text-center w-32 h-28 justify-between" title={company.name}>
                       <div className="relative w-24 h-12">
-                        <Image 
+                        <img 
                           src={getImageUrl(company.logo_path, 'w200')} 
                           alt={`${company.name} logo`} 
-                          fill
-                          className="object-contain"
+                          className="object-contain w-full h-full"
+                          loading="lazy"
                           data-ai-hint="company logo"
-                         />
+                          style={{ borderRadius: 'inherit' }}
+                        />
                       </div>
                       <p className="text-xs text-muted-foreground truncate w-full mt-2">{company.name}</p>
                     </div>

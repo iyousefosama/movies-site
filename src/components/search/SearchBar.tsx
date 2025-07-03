@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
@@ -8,7 +7,6 @@ import { useRouter } from "next/navigation"
 import type { TMDBMediaItem } from "@/types/tmdb"
 import { searchMedia } from "@/lib/tmdb"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
 import { getImageUrl } from "@/lib/tmdb"
 
 interface SearchBarProps {
@@ -178,12 +176,13 @@ export function SearchBar({ placeholder = "Search movies, TV shows...", classNam
                           }}
                           className="w-full text-left px-3 py-2.5 hover:bg-accent hover:text-accent-foreground transition-colors duration-150 flex items-center gap-3 text-sm"
                         >
-                          <Image
+                          <img
                             src={getImageUrl(item.poster_path, 'w92')}
                             alt={itemTitle}
                             width={32}
                             height={48}
                             className="rounded object-cover aspect-[2/3]"
+                            loading="lazy"
                             data-ai-hint="movie poster tv series poster"
                           />
                           <div className="flex-grow overflow-hidden">

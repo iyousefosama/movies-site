@@ -1,7 +1,5 @@
-
 "use client";
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Tv, Film, Tag } from 'lucide-react';
@@ -32,11 +30,12 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
   const href = `/${mediaType}/${item.id}`;
   const [isHovered, setIsHovered] = React.useState(false);
 
-  // Ensure the item passed to FavoriteButton has media_type
-  const itemForFavoriteButton: TMDBMediaItem = {
-    ...item,
-    media_type: item.media_type || mediaType,
-  };
+  // Ensure the item passed to FavoriteButton has the correct media_type if missing
+  const itemForFavoriteButton: TMDBMediaItem = item.media_type
+    ? item
+    : (mediaType === 'movie'
+        ? { ...(item as TMDBMovie), media_type: 'movie' as const }
+        : { ...(item as TMDBTVShow), media_type: 'tv' as const });
 
   const cardVariants = {
     rest: { scale: 1, boxShadow: "0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -2px rgba(0, 0, 0, 0.05)" },
@@ -87,13 +86,13 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
                 {rank}
               </div>
             )}
-            <Image
+            <img
               src={getImageUrl(item.poster_path, 'w342')}
               alt={title || 'Media Poster'}
-              fill
-              sizes="(max-width: 768px) 30vw, (max-width: 1200px) 20vw, 15vw"
-              className="object-cover transition-transform duration-300 group-hover:brightness-90 rounded-t-lg"
+              className="object-cover transition-transform duration-300 group-hover:brightness-90 rounded-t-lg w-full h-full"
+              loading="lazy"
               data-ai-hint="movie poster trending"
+              style={{ aspectRatio: '2/3', width: '100%', height: '100%' }}
             />
              <AnimatePresence>
              {isHovered && (
@@ -132,13 +131,13 @@ export function MovieCard({ item, mediaType, genres, rank, className, variant = 
     >
       <Link href={href} className="block w-full h-full">
         <div className="relative aspect-[2/3] w-full">
-          <Image
+          <img
             src={getImageUrl(item.poster_path, 'w500')}
             alt={title || 'Media Poster'}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            className="object-cover transition-transform duration-300 group-hover:brightness-75"
+            className="object-cover transition-transform duration-300 group-hover:brightness-75 w-full h-full"
+            loading="lazy"
             data-ai-hint="movie poster popular"
+            style={{ aspectRatio: '2/3', width: '100%', height: '100%' }}
           />
           <AnimatePresence>
           {isHovered && (

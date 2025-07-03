@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Check, ChevronsUpDown, X, Loader2, Film, Tv } from "lucide-react";
-import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -195,12 +194,13 @@ export function MediaMultiSelect({
                     )}
                   />
                   <div className="w-10 h-15 flex-shrink-0 relative">
-                    <Image 
-                        src={getImageUrl(option.posterPath, 'w92')} 
+                    <img 
+                        src={getImageUrl(option.posterPath ?? null, 'w92')} 
                         alt={option.label} 
                         width={40} 
                         height={60} 
-                        className="rounded object-cover"
+                        className="rounded object-cover w-10 h-15"
+                        loading="lazy"
                         data-ai-hint="movie poster tv series poster"
                     />
                   </div>
@@ -362,12 +362,13 @@ export function MediaSingleSelect({
                     )}
                   />
                   <div className="w-10 h-15 flex-shrink-0 relative">
-                    <Image
-                      src={getImageUrl(option.posterPath, 'w92')}
+                    <img
+                      src={getImageUrl(option.posterPath ?? null, 'w92')}
                       alt={option.label}
                       width={40}
                       height={60}
-                      className="rounded object-cover"
+                      className="rounded object-cover w-10 h-15"
+                      loading="lazy"
                     />
                   </div>
                   <div className="flex-grow overflow-hidden">

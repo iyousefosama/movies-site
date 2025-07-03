@@ -1,8 +1,6 @@
-
 "use client";
 
 import Link from 'next/link';
-import Image from 'next/image'; // Added Image import
 import { SearchBar } from '@/components/search/SearchBar';
 import { Home, Wand2, Heart } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -22,16 +20,16 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
         <Link href="/" className="flex items-center space-x-2 text-primary hover:text-primary/80 transition-colors">
-          {/* Replaced Clapperboard and text with Image */}
           <div className="relative h-8 w-auto"> {/* Adjust h-8 and w-auto as needed */}
-            <Image
+            <img
               src="/logo.png"
               alt="Movista Logo"
-              height={32} // Corresponds to h-8
-              width={100} // Adjust width as needed for your logo's aspect ratio
+              height={32}
+              width={100}
               className="object-contain"
-              priority
+              loading="eager"
               data-ai-hint="logo"
+              style={{ maxHeight: 32, width: 'auto', display: 'block' }}
             />
           </div>
         </Link>
