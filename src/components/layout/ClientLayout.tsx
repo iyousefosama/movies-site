@@ -10,10 +10,11 @@ export function ClientLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {!isHomePage && <Header />}
-      <main className={`flex-grow container mx-auto px-4 ${isHomePage ? 'py-0' : 'py-8'}`}>
+      <Header />
+      <main className={`flex-grow ${isHomePage ? 'w-full p-0 m-0' : 'container mx-auto px-4 pt-20 sm:pt-24 pb-12'}`}>
         {children}
       </main>
     </>
   );
-} 
+}
+ 

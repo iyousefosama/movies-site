@@ -7,7 +7,8 @@ import type {
   TMDBTVShowDetails, 
   TMDBMediaItem,
   TMDBError,
-  TMDBGenre
+  TMDBGenre,
+  TMDBVideo
 } from '@/types/tmdb';
 
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
@@ -53,6 +54,25 @@ export const getPopular = async (
   language: string = 'en-US'
 ): Promise<TMDBPaginatedResponse<TMDBMediaItem>> => {
   return fetchTMDB<TMDBPaginatedResponse<TMDBMediaItem>>(`${mediaType}/popular`, { page, language });
+};
+
+export const getNowPlaying = async (
+  page: number = 1,
+  language: string = 'en-US'
+): Promise<TMDBPaginatedResponse<TMDBMovie>> => {
+  return fetchTMDB<TMDBPaginatedResponse<TMDBMovie>>('movie/now_playing', { page, language });
+};
+
+export const getMediaVideos = async (
+  mediaType: 'movie' | 'tv',
+  id: string | number
+): Promise<TMDBVideo[]> => {
+  try {
+    const data = await fetchTMDB<{ id: number; results: TMDBVideo[] }>(`${mediaType}/${id}/videos`);
+    return data.results || [];
+  } catch {
+    return [];
+  }
 };
 
 export const getDetails = async (

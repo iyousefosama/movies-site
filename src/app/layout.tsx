@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Bebas_Neue } from 'next/font/google';
 import './globals.css';
-import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from './providers';
 import { FavoritesProvider } from '@/context/FavoritesContext';
@@ -9,6 +8,7 @@ import { ClientLayout } from '@/components/layout/ClientLayout';
 import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const bebas = Bebas_Neue({ weight: '400', subsets: ['latin'], variable: '--font-bebas' });
 
 export const metadata: Metadata = {
   title: {
@@ -57,12 +57,11 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} font-body antialiased flex flex-col min-h-screen bg-background text-foreground`}>
+      <body className={`${inter.variable} ${bebas.variable} font-body antialiased flex flex-col min-h-screen bg-background text-foreground`}>
         <Providers>
           <Analytics />
           <FavoritesProvider>
             <ClientLayout>{children}</ClientLayout>
-            <Footer />
             <Toaster />
           </FavoritesProvider>
         </Providers>

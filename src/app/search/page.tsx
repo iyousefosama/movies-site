@@ -32,7 +32,7 @@ type SortOrder = "asc" | "desc";
 function SearchResultsDisplay() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const query = searchParams.get('query') || '';
+  const query = searchParams.get('query') || searchParams.get('q') || '';
   const genreQuery = searchParams.get('genre_query') || '';
   const page = parseInt(searchParams.get('page') || '1', 10);
 

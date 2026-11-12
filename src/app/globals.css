@@ -14,95 +14,95 @@ body {
 
 @layer base {
   :root {
-    --background: 222 84% 4%; /* Deeper dark for cinematic feel */
-    --foreground: 45 15% 92%; /* Warm white with slight golden tint */
+    --background: 0 0% 4%; /* Deep pitch black */
+    --foreground: 0 0% 98%;
 
-    --card: 220 30% 8%; /* Darker cards with blue undertone */
-    --card-foreground: 45 15% 92%;
+    --card: 0 0% 8%; /* Dark elevated cards */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 30% 8%; /* Match card for consistency */
-    --popover-foreground: 45 15% 92%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 38 92% 50%; /* Golden amber primary */
-    --primary-foreground: 222 84% 4%;
+    --primary: 357 85% 52%; /* Cinema Red */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 25% 12%; /* Darker secondary with blue undertone */
-    --secondary-foreground: 45 15% 92%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 30% 8%; /* Match card background */
-    --muted-foreground: 220 15% 60%; /* Cooler muted text */
+    --muted: 0 0% 12%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: 345 85% 58%; /* Cinematic red accent */
-    --accent-foreground: 45 15% 92%;
+    --accent: 357 85% 52%; /* Cinema Red Accent */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 100% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 25% 15%; /* Subtle borders */
-    --input: 220 30% 8%; /* Match muted background */
-    --ring: 38 92% 50%; /* Golden focus rings */
+    --border: 0 0% 15%;
+    --input: 0 0% 12%;
+    --ring: 357 85% 52%;
 
-    --radius: 0.75rem; /* Slightly more rounded for modern look */
+    --radius: 0.5rem;
 
-    --chart-1: 38 92% 50%; /* Golden amber */
-    --chart-2: 345 85% 58%; /* Cinematic red */
-    --chart-3: 262 83% 58%; /* Purple */
-    --chart-4: 217 91% 60%; /* Blue */
-    --chart-5: 160 100% 40%; /* Green */
+    --chart-1: 357 85% 52%;
+    --chart-2: 278 100% 65%;
+    --chart-3: 190 90% 45%;
+    --chart-4: 35 95% 50%;
+    --chart-5: 160 100% 40%;
 
-    --sidebar-background: 222 84% 4%;
-    --sidebar-foreground: 45 15% 92%;
-    --sidebar-primary: 38 92% 50%;
-    --sidebar-primary-foreground: 222 84% 4%;
-    --sidebar-accent: 345 85% 58%;
-    --sidebar-accent-foreground: 45 15% 92%;
-    --sidebar-border: 220 25% 15%;
-    --sidebar-ring: 38 92% 50%;
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 357 85% 52%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 357 85% 52%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 357 85% 52%;
   }
 
   .dark {
-    --background: 222 84% 3%; /* Even deeper for dark mode */
-    --foreground: 45 15% 95%; /* Brighter warm white */
+    --background: 0 0% 3%; /* Ultra pitch dark #070707 */
+    --foreground: 0 0% 98%;
 
-    --card: 220 35% 6%; /* Darker cards */
-    --card-foreground: 45 15% 95%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 35% 6%;
-    --popover-foreground: 45 15% 95%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 38 92% 55%; /* Slightly brighter golden */
-    --primary-foreground: 222 84% 3%;
+    --primary: 357 85% 52%; /* Cinema Red */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 30% 8%;
-    --secondary-foreground: 45 15% 95%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 35% 6%;
-    --muted-foreground: 220 15% 65%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: 278 100% 65%; /* Royal Neon Purple */
-    --accent-foreground: 45 15% 95%; /* Keep text warm and readable */
+    --accent: 357 85% 52%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 100% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 25% 12%;
-    --input: 220 35% 6%;
-    --ring: 38 92% 55%;
+    --border: 0 0% 14%;
+    --input: 0 0% 10%;
+    --ring: 357 85% 52%;
 
-    --chart-1: 38 92% 55%; /* Brighter golden */
-    --chart-2: 345 85% 62%; /* Brighter red */
-    --chart-3: 262 83% 62%; /* Brighter purple */
-    --chart-4: 217 91% 65%; /* Brighter blue */
-    --chart-5: 160 100% 45%; /* Brighter green */
+    --chart-1: 357 85% 52%;
+    --chart-2: 278 100% 65%;
+    --chart-3: 190 90% 45%;
+    --chart-4: 35 95% 50%;
+    --chart-5: 160 100% 45%;
 
-    --sidebar-background: 222 84% 3%;
-    --sidebar-foreground: 45 15% 95%;
-    --sidebar-primary: 38 92% 55%;
-    --sidebar-primary-foreground: 222 84% 3%;
-    --sidebar-accent: 345 85% 62%;
-    --sidebar-accent-foreground: 45 15% 95%;
-    --sidebar-border: 220 25% 12%;
-    --sidebar-ring: 38 92% 55%;
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 357 85% 52%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 357 85% 52%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 357 85% 52%;
   }
 }
 
@@ -114,43 +114,35 @@ body {
   body {
     @apply bg-background text-foreground;
     scroll-behavior: smooth;
-    /* Add subtle texture for cinematic feel */
-    background-image: radial-gradient(
-      circle at 1px 1px,
-      rgba(251, 191, 36, 0.03) 1px,
-      transparent 0
-    );
-    background-size: 20px 20px;
+    background-color: #070707;
+  }
+
+  /* Hide scrollbar for clean carousels while allowing smooth swipe/scroll */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   /* Enhanced scrollbar with cinematic colors */
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(var(--background));
-    border-radius: 10px;
-    border: 1px solid hsl(var(--border));
+    background: #0d0d0d;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--primary) / 0.6),
-      hsl(var(--accent) / 0.6)
-    );
-    border-radius: 10px;
-    border: 1px solid hsl(var(--border));
+    background: #2a2a2a;
+    border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--primary) / 0.8),
-      hsl(var(--accent) / 0.8)
-    );
+    background: #e50914;
   }
 
   /* Add cinematic glow effects for interactive elements */
